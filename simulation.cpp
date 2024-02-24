@@ -3,7 +3,7 @@
 #include <cmath>
 #include "Process.h"
 
-float next_exp(float lambda)
+float next_exp(float lambda, int upper_bound)
 {
     return -log(drand48()) / lambda;
 }
@@ -13,19 +13,19 @@ void generate_processes(int n, int upper_bound, int cpu_bound_begin, float lambd
     for (int i = 0; i < n; i++)
     {
         char id = 'A' + i;
-        int arrival_time = floor(next_exp(lambda));
+        int arrival_time = floor(next_exp(lambda, upper_bound));
         int cpu_burst_count = 0;
         while (arrival_time > upper_bound)
         {
-            arrival_time = floor(next_exp(lambda));
+            arrival_time = floor(next_exp(lambda, upper_bound));
         }
-        cpu_burst_count = ceil(next_exp(lambda) * 64);
+        cpu_burst_count = ceil(drand48() * 64);
         std::vector<int> cpu_bursts;
         std::vector<int> io_bursts;
         for (int j = 0; j < cpu_burst_count; j++)
         {
-            int burst_time = floor(next_exp(lambda));
-            int io_time = floor(next_exp(lambda)) * 10;
+            int burst_time = ceil(next_exp(lambda, upper_bound));
+            int io_time = ceil(next_exp(lambda, upper_bound)) * 10;
             // if process is cpu bound
             if (i >= cpu_bound_begin)
             {
@@ -88,6 +88,7 @@ int main(int argc, char *argv[])
     float lambda = std::stod(argv[4]);
     int upper_bound = std::stoi(argv[5]);
 
+    // the index of the first CPU-bound process
     int cpu_bound_begin = n - n_cpu;
 
     srand48(seed);
