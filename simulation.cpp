@@ -55,7 +55,7 @@ void print_processes(const std::vector<std::unique_ptr<Process>> &processes, int
         {
             std::cout << "CPU-bound process ";
         }
-        std::cout << process->getId() << " arrival time " << process->getArrivalTime() << " ms; " << process->getCpuBurstCount() << " CPU bursts:\n";
+        std::cout << process->getId() << ": arrival time " << process->getArrivalTime() << " ms; " << process->getCpuBurstCount() << " CPU bursts:\n";
 
         for (int i = 0; i < process->getCpuBurstCount(); i++)
         {
@@ -69,7 +69,6 @@ void print_processes(const std::vector<std::unique_ptr<Process>> &processes, int
                 std::cout << std::endl;
             }
         }
-        std::cout << std::flush;
         count++;
     }
 }
