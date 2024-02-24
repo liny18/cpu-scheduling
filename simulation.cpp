@@ -1,0 +1,103 @@
+#include <iostream>
+#include <memory>
+#include <cmath>
+#include "Process.h"
+
+float next_exp(float lambda)
+{
+    return -log(drand48()) / lambda;
+}
+
+void generate_processes(int n, int upper_bound, int cpu_bound_begin, float lambda, std::vector<std::unique_ptr<Process>> &processes)
+{
+    for (int i = 0; i < n; i++)
+    {
+        char id = 'A' + i;
+        int arrival_time = floor(next_exp(lambda));
+        int cpu_burst_count = 0;
+        while (arrival_time > upper_bound)
+        {
+            arrival_time = floor(next_exp(lambda));
+        }
+        cpu_burst_count = ceil(next_exp(lambda) * 64);
+        std::vector<int> cpu_bursts;
+        std::vector<int> io_bursts;
+        for (int j = 0; j < cpu_burst_count; j++)
+        {
+            int burst_time = floor(next_exp(lambda));
+            int io_time = floor(next_exp(lambda)) * 10;
+            // if process is cpu bound
+            if (i >= cpu_bound_begin)
+            {
+                burst_time *= 4;
+                io_time /= 8;
+            }
+            cpu_bursts.push_back(burst_time);
+            if (j != cpu_burst_count - 1)
+            {
+                io_bursts.push_back(io_time);
+            }
+        }
+        processes.push_back(std::make_unique<Process>(id, arrival_time, cpu_burst_count, cpu_bursts, io_bursts));
+    }
+}
+
+void print_processes(const std::vector<std::unique_ptr<Process>> &processes, int cpu_bound_begin)
+{
+    int count = 0;
+    for (const auto &process : processes)
+    {
+        if (count < cpu_bound_begin)
+        {
+            std::cout << "I/O-bound process ";
+        }
+        else
+        {
+            std::cout << "CPU-bound process ";
+        }
+        std::cout << process->getId() << " arrival time " << process->getArrivalTime() << " ms; " << process->getCpuBurstCount() << " CPU bursts:\n";
+
+        for (int i = 0; i < process->getCpuBurstCount(); i++)
+        {
+            std::cout << "--> CPU burst " << process->getCpuBurst(i) << "ms; ";
+            if (i != process->getCpuBurstCount() - 1)
+            {
+                std::cout << "I/O burst " << process->getIoBurst(i) << "ms\n";
+            }
+            else
+            {
+                std::cout << std::endl;
+            }
+        }
+        std::cout << std::flush;
+        count++;
+    }
+}
+
+int main(int argc, char *argv[])
+{
+    if (argc != 6)
+    {
+        std::cerr << "ERROR: Invalid number of arguments" << std::endl;
+        return 1;
+    }
+
+    int n = std::stoi(argv[1]);
+    int n_cpu = std::stoi(argv[2]);
+    int seed = std::stoi(argv[3]);
+    float lambda = std::stod(argv[4]);
+    int upper_bound = std::stoi(argv[5]);
+
+    int cpu_bound_begin = n - n_cpu;
+
+    srand48(seed);
+
+    std::vector<std::unique_ptr<Process>> processes;
+    generate_processes(n, upper_bound, cpu_bound_begin, lambda, processes);
+
+    std::cout << "<<< PROJECT PART I -- process set (n=" << n << ") with " << n_cpu << " CPU-bound process >>>\n";
+
+    print_processes(processes, cpu_bound_begin);
+
+    return 0;
+}
