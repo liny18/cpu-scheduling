@@ -3,41 +3,42 @@
 #include <cmath>
 #include "Process.h"
 
-float next_exp(float lambda, int upper_bound)
+double next_exp(double lambda, int upper_bound)
 {
-    return -log(drand48()) / lambda;
+    double exp = upper_bound + 1;
+    while (exp > upper_bound)
+    {
+        exp = -log(drand48()) / lambda;
+    }
+    return exp;
 }
 
-void generate_processes(int n, int upper_bound, int cpu_bound_begin, float lambda, std::vector<std::unique_ptr<Process>> &processes)
+void generate_processes(int n, int upper_bound, int cpu_bound_begin, double lambda, std::vector<std::unique_ptr<Process>> &processes)
 {
     for (int i = 0; i < n; i++)
     {
         char id = 'A' + i;
         int arrival_time = floor(next_exp(lambda, upper_bound));
         int cpu_burst_count = 0;
-        while (arrival_time > upper_bound)
-        {
-            arrival_time = floor(next_exp(lambda, upper_bound));
-        }
         cpu_burst_count = ceil(drand48() * 64);
         std::vector<int> cpu_bursts;
         std::vector<int> io_bursts;
+
         for (int j = 0; j < cpu_burst_count; j++)
         {
             int burst_time = ceil(next_exp(lambda, upper_bound));
-            int io_time = ceil(next_exp(lambda, upper_bound)) * 10;
-            // if process is cpu bound
-            if (i >= cpu_bound_begin)
-            {
-                burst_time *= 4;
-                io_time /= 8;
-            }
+            burst_time *= (i >= cpu_bound_begin) ? 4 : 1;
+
             cpu_bursts.push_back(burst_time);
-            if (j != cpu_burst_count - 1)
+
+            if (j < cpu_burst_count - 1)
             {
+                int io_time = ceil(next_exp(lambda, upper_bound)) * 10;
+                io_time /= (i >= cpu_bound_begin) ? 8 : 1;
                 io_bursts.push_back(io_time);
             }
         }
+
         processes.push_back(std::make_unique<Process>(id, arrival_time, cpu_burst_count, cpu_bursts, io_bursts));
     }
 }
@@ -55,7 +56,7 @@ void print_processes(const std::vector<std::unique_ptr<Process>> &processes, int
         {
             std::cout << "CPU-bound process ";
         }
-        std::cout << process->getId() << ": arrival time " << process->getArrivalTime() << " ms; " << process->getCpuBurstCount() << " CPU bursts:\n";
+        std::cout << process->getId() << ": arrival time " << process->getArrivalTime() << "ms; " << process->getCpuBurstCount() << " CPU bursts:\n";
 
         for (int i = 0; i < process->getCpuBurstCount(); i++)
         {
@@ -84,7 +85,7 @@ int main(int argc, char *argv[])
     int n = std::stoi(argv[1]);
     int n_cpu = std::stoi(argv[2]);
     int seed = std::stoi(argv[3]);
-    float lambda = std::stod(argv[4]);
+    double lambda = std::stod(argv[4]);
     int upper_bound = std::stoi(argv[5]);
 
     // the index of the first CPU-bound process
