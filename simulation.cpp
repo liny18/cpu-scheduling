@@ -102,8 +102,8 @@ int main(int argc, char *argv[])
   std::vector<std::unique_ptr<Process>> processes;
   generate_processes(n, upper_bound, cpu_bound_begin, lambda, processes);
 
-  std::cout << "<<< PROJECT PART I -- process set (n=" << n << ") with "
-            << n_cpu << " CPU-bound process >>>\n";
+  std::cout << "<<< PROJECT PART I -- process set (n=" << n << ") with " << n_cpu << " CPU-bound "
+            << (n_cpu == 1 ? "process >>>" : "processes >>>") << std::endl;
 
   print_processes(processes, cpu_bound_begin);
 
