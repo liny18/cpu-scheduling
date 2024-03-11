@@ -66,10 +66,10 @@ void print_processes(const std::vector<std::unique_ptr<Process>> &processes,
 
     for (int i = 0; i < process->getCpuBurstCount(); i++)
     {
-      std::cout << "--> CPU burst " << process->getCpuBurst(i) << "ms --> ";
+      std::cout << "--> CPU burst " << process->getCpuBurst(i) << "ms";
       if (i != process->getCpuBurstCount() - 1)
       {
-        std::cout << "I/O burst " << process->getIoBurst(i) << "ms\n";
+        std::cout << " --> I/O burst " << process->getIoBurst(i) << "ms\n";
       }
       else
       {
