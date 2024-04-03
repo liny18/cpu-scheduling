@@ -1,7 +1,9 @@
 #include "Process.h"
+#include "Algorithm.h"
+#include <vector>
+#include <queue>
 #include <cmath>
 #include <iostream>
-#include <memory>
 
 double next_exp(double lambda, int upper_bound)
 {
@@ -15,11 +17,12 @@ double next_exp(double lambda, int upper_bound)
 
 void generate_processes(int n, int upper_bound, int cpu_bound_begin,
                         double lambda,
-                        std::vector<std::unique_ptr<Process>> &processes)
+                        std::vector<Process> &processes)
 {
   for (int i = 0; i < n; i++)
   {
     char id = 'A' + i;
+    bool is_cpu_bound = i >= cpu_bound_begin;
     int arrival_time = floor(next_exp(lambda, upper_bound));
     int cpu_burst_count = 0;
     cpu_burst_count = ceil(drand48() * 64);
@@ -41,13 +44,13 @@ void generate_processes(int n, int upper_bound, int cpu_bound_begin,
       }
     }
 
-    processes.push_back(std::make_unique<Process>(
-        id, arrival_time, cpu_burst_count, cpu_bursts, io_bursts));
+    processes.push_back(Process(
+        id, is_cpu_bound, arrival_time, cpu_burst_count, cpu_bursts, io_bursts));
   }
 }
 
-void print_processes(const std::vector<std::unique_ptr<Process>> &processes,
-                     int cpu_bound_begin)
+void print_part1(const std::vector<Process> &processes,
+                 int cpu_bound_begin)
 {
   int count = 0;
   for (const auto &process : processes)
@@ -60,22 +63,9 @@ void print_processes(const std::vector<std::unique_ptr<Process>> &processes,
     {
       std::cout << "CPU-bound process ";
     }
-    std::cout << process->getId() << ": arrival time "
-              << process->getArrivalTime() << "ms; "
-              << process->getCpuBurstCount() << " CPU bursts:\n";
-
-    for (int i = 0; i < process->getCpuBurstCount(); i++)
-    {
-      std::cout << "--> CPU burst " << process->getCpuBurst(i) << "ms";
-      if (i != process->getCpuBurstCount() - 1)
-      {
-        std::cout << " --> I/O burst " << process->getIoBurst(i) << "ms\n";
-      }
-      else
-      {
-        std::cout << std::endl;
-      }
-    }
+    std::cout << process.getId() << ": arrival time "
+              << process.getArrivalTime() << "ms; "
+              << process.getCpuBurstCount() << " CPU bursts" << std::endl;
     count++;
   }
 }
@@ -102,13 +92,30 @@ int main(int argc, char *argv[])
 
   srand48(seed);
 
-  std::vector<std::unique_ptr<Process>> processes;
+  std::vector<Process> processes;
   generate_processes(n, upper_bound, cpu_bound_begin, lambda, processes);
 
   std::cout << "<<< PROJECT PART I -- process set (n=" << n << ") with " << n_cpu << " CPU-bound "
             << (n_cpu == 1 ? "process >>>" : "processes >>>") << std::endl;
 
-  print_processes(processes, cpu_bound_begin);
+  print_part1(processes, cpu_bound_begin);
+
+  std::cout << "<<< PROJECT PART -- t_cs=" << t_cs << "; alpha=" << alpha << "; t_slice=" << t_slice << "ms >>>" << std::endl;
+
+  std::string algorithms[4] = {"FCFS", "SJF", "SRT", "RR"};
+
+  std::queue<Process> processes_queue;
+
+  for (const auto &process : processes)
+  {
+    processes_queue.push(process);
+  }
+
+  for (const auto &algo : algorithms)
+  {
+    Algorithm algorithm(algo, t_cs, processes_queue, Measurements(), Measurements());
+    algorithm.run();
+  }
 
   return 0;
 }
