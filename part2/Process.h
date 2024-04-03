@@ -22,12 +22,13 @@ private:
 
 public:
     Process() : id(0), cpu_bound(0), arrival_time(0), cpu_burst_count(0), status(""), tau(0), current_burst_index(0), remaining_burst_time(0), buffer_time(0) {}
-    Process(char id, int cpu_bound, int arrival_time, int cpu_burst_count, std::vector<int> cpu_bursts, std::vector<int> io_bursts) : id(id), cpu_bound(cpu_bound), arrival_time(arrival_time), cpu_burst_count(cpu_burst_count), cpu_bursts(cpu_bursts), io_bursts(io_bursts), status(""), tau(0), current_burst_index(0), remaining_burst_time(0), buffer_time(0)
-    {
-        std::cout << "IO BURTS SIZE ORZ : " << io_bursts.size() << std::endl;
-    }
+    Process(char id, int cpu_bound, int arrival_time, int cpu_burst_count, std::vector<int> cpu_bursts, std::vector<int> io_bursts) : id(id), cpu_bound(cpu_bound), arrival_time(arrival_time), cpu_burst_count(cpu_burst_count), cpu_bursts(cpu_bursts), io_bursts(io_bursts), status(""), tau(0), current_burst_index(0), remaining_burst_time(0), buffer_time(0) {}
 
-    char getId() const { return id; }
+    char
+    getId() const
+    {
+        return id;
+    }
     int getArrivalTime() const { return arrival_time; }
     int getCpuBurstCount() const { return cpu_burst_count; }
     int getCpuBurst(int index) const { return cpu_bursts[index]; }
