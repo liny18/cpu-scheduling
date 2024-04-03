@@ -110,9 +110,7 @@ int main(int argc, char *argv[])
   // }
 
   Algorithm algorithm("FCFS", t_cs, processes);
-  std::cout << "orz" << std::endl;
   algorithm.run();
-  std::cout << "orz" << std::endl;
 
   return 0;
 }
