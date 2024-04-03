@@ -1,7 +1,6 @@
 #include "Process.h"
 #include "Algorithm.h"
 #include <vector>
-#include <queue>
 #include <cmath>
 #include <iostream>
 
@@ -104,16 +103,9 @@ int main(int argc, char *argv[])
 
   std::string algorithms[4] = {"FCFS", "SJF", "SRT", "RR"};
 
-  std::queue<Process> processes_queue;
-
-  for (const auto &process : processes)
-  {
-    processes_queue.push(process);
-  }
-
   for (const auto &algo : algorithms)
   {
-    Algorithm algorithm(algo, t_cs, processes_queue, Measurements(), Measurements());
+    Algorithm algorithm(algo, t_cs, processes);
     algorithm.run();
   }
 

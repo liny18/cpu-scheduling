@@ -6,12 +6,20 @@
 #include "Process.h"
 #include "Measurements.h"
 
+struct processComparator
+{
+    bool operator()(const Process &lhs, const Process &rhs) const
+    {
+        return lhs.getArrivalTime() > rhs.getArrivalTime();
+    }
+};
+
 class Algorithm
 {
 private:
     int time;
     std::string algo;
-    std::queue<Process> processes;
+    std::priority_queue<Process, std::vector<Process>, processComparator> arrival_queue;
     std::priority_queue<Process, std::vector<Process>, std::greater<Process>> ready_queue;
     std::priority_queue<Process, std::vector<Process>, std::greater<Process>> waiting_queue;
     Process current_process;
@@ -20,8 +28,18 @@ private:
     Measurements measurements_IB; // for I/O-bound processes
 
 public:
-    Algorithm(std::string algo, int t_cs, std::queue<Process> processes, Measurements measurements_CB, Measurements measurements_IB)
-        : algo(algo), t_cs(t_cs), processes(processes), measurements_CB(measurements_CB), measurements_IB(measurements_IB), time(0) {}
+    Algorithm(std::string algo, int t_cs, std::vector<Process> processes)
+        : time(0),
+          algo(algo),
+          t_cs(t_cs),
+          measurements_CB(Measurements()),
+          measurements_IB(Measurements())
+    {
+        for (Process p : processes)
+        {
+            arrival_queue.push(p);
+        }
+    }
 
     void run();
     void FCFS();
@@ -33,6 +51,7 @@ public:
     void checkIOBurstComplete();
     void checkProcessArrival();
     bool isEmpty();
+    void incrementMeasurements(Process &p);
 };
 
 #endif // __Algorithm_H__

@@ -35,6 +35,7 @@ public:
     int getCurrentBurstIndex() const { return current_burst_index; }
     int getRemainingBurstTime() const { return remaining_burst_time; }
     int getPriority() const { return priority; }
+    bool is_cpu_bound() const { return is_cpu_bound; }
 
     void setStatus(const std::string &newStatus) { status = newStatus; }
     void setTau(int newTau);
@@ -42,7 +43,7 @@ public:
     void setRemainingBurstTime(int time) { remaining_burst_time = time; }
     void setPriority(int newPriority) { priority = newPriority; }
 
-    bool operator<(const Process &other) const;
+    bool operator>(const Process &other) const;
 };
 
 #endif // __PROCESS_H__
