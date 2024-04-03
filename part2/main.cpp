@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
   double lambda = std::stod(argv[4]);
   int upper_bound = std::stoi(argv[5]);
   int t_cs = std::stoi(argv[6]);
-  int alpha = std::stoi(argv[7]);
+  float alpha = std::stof(argv[7]);
   int t_slice = std::stoi(argv[8]);
 
   // the index of the first CPU-bound process
@@ -101,13 +101,18 @@ int main(int argc, char *argv[])
 
   std::cout << "<<< PROJECT PART -- t_cs=" << t_cs << "; alpha=" << alpha << "; t_slice=" << t_slice << "ms >>>" << std::endl;
 
-  std::string algorithms[4] = {"FCFS", "SJF", "SRT", "RR"};
+  // std::string algorithms[4] = {"FCFS", "SJF", "SRT", "RR"};
 
-  for (const auto &algo : algorithms)
-  {
-    Algorithm algorithm(algo, t_cs, processes);
-    algorithm.run();
-  }
+  // for (const auto &algo : algorithms)
+  // {
+  //   Algorithm algorithm(algo, t_cs, processes);
+  //   algorithm.run();
+  // }
+
+  Algorithm algorithm("FCFS", t_cs, processes);
+  std::cout << "orz" << std::endl;
+  algorithm.run();
+  std::cout << "orz" << std::endl;
 
   return 0;
 }
