@@ -1,7 +1,6 @@
 #include "Process.h"
 #include <cmath>
 #include <iostream>
-#include <memory>
 
 double next_exp(double lambda, int upper_bound)
 {
@@ -15,7 +14,7 @@ double next_exp(double lambda, int upper_bound)
 
 void generate_processes(int n, int upper_bound, int cpu_bound_begin,
                         double lambda,
-                        std::vector<std::unique_ptr<Process>> &processes)
+                        std::vector<Process> &processes)
 {
   for (int i = 0; i < n; i++)
   {
@@ -41,12 +40,12 @@ void generate_processes(int n, int upper_bound, int cpu_bound_begin,
       }
     }
 
-    processes.push_back(std::make_unique<Process>(
+    processes.push_back(Process(
         id, arrival_time, cpu_burst_count, cpu_bursts, io_bursts));
   }
 }
 
-void print_processes(const std::vector<std::unique_ptr<Process>> &processes,
+void print_processes(const std::vector<Process> &processes,
                      int cpu_bound_begin)
 {
   int count = 0;
@@ -60,16 +59,16 @@ void print_processes(const std::vector<std::unique_ptr<Process>> &processes,
     {
       std::cout << "CPU-bound process ";
     }
-    std::cout << process->getId() << ": arrival time "
-              << process->getArrivalTime() << "ms; "
-              << process->getCpuBurstCount() << " CPU bursts:\n";
+    std::cout << process.id << ": arrival time "
+              << process.arrival_time << "ms; "
+              << process.cpu_burst_count << " CPU bursts:\n";
 
-    for (int i = 0; i < process->getCpuBurstCount(); i++)
+    for (int i = 0; i < process.cpu_burst_count; i++)
     {
-      std::cout << "--> CPU burst " << process->getCpuBurst(i) << "ms";
-      if (i != process->getCpuBurstCount() - 1)
+      std::cout << "--> CPU burst " << process.cpu_bursts[i] << "ms";
+      if (i != process.cpu_burst_count - 1)
       {
-        std::cout << " --> I/O burst " << process->getIoBurst(i) << "ms\n";
+        std::cout << " --> I/O burst " << process.io_bursts[i] << "ms\n";
       }
       else
       {
@@ -99,7 +98,7 @@ int main(int argc, char *argv[])
 
   srand48(seed);
 
-  std::vector<std::unique_ptr<Process>> processes;
+  std::vector<Process> processes;
   generate_processes(n, upper_bound, cpu_bound_begin, lambda, processes);
 
   std::cout << "<<< PROJECT PART I -- process set (n=" << n << ") with " << n_cpu << " CPU-bound "

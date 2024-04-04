@@ -5,27 +5,27 @@ Process::Process(char id, int arrival_time, int cpu_burst_count, std::vector<int
 {
 }
 
-char Process::getId() const
-{
-    return id;
-}
+// char Process::getId() const
+// {
+//     return id;
+// }
 
-int Process::getArrivalTime() const
-{
-    return arrival_time;
-}
+// int Process::getArrivalTime() const
+// {
+//     return arrival_time;
+// }
 
-int Process::getCpuBurstCount() const
-{
-    return cpu_burst_count;
-}
+// int Process::getCpuBurstCount() const
+// {
+//     return cpu_burst_count;
+// }
 
-int Process::getCpuBurst(int index) const
-{
-    return cpu_bursts[index];
-}
+// int Process::getCpuBurst(int index) const
+// {
+//     return cpu_bursts[index];
+// }
 
-int Process::getIoBurst(int index) const
-{
-    return io_bursts[index];
-}
+// int Process::getIoBurst(int index) const
+// {
+//     return io_bursts[index];
+// }
