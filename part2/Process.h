@@ -2,6 +2,7 @@
 #define __PROCESS_H__
 
 #include <vector>
+#include <string>
 
 class Process
 {

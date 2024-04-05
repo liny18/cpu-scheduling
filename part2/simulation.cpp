@@ -133,6 +133,9 @@ int main(int argc, char *argv[])
 
   while (true)
   {
+    // if(curr_time == 7605) {
+    //   cout << "TIME IS 7605 " << print_queue(waiting_queue) << endl;
+    // }
     // cout << "time " << curr_time << " " << arrival_queue.size() << " " << ready_queue.size() << " " << waiting_queue.size() << endl;
     // terminate when to complete
     //(a) CPU burst completion; (b) process starts using the CPU; (c) I/O burst completions; and (d) new process arrivals
@@ -146,7 +149,7 @@ int main(int argc, char *argv[])
       {
         // output += "time " + to_string(curr_time) + "ms: PROCESS " + current_process.id + " terminated\n";
         current_process.status = "TERMINATED";
-        cout << "time " << curr_time << "ms: PROCESS " << current_process.id << " terminated";
+        cout << "time " << curr_time << "ms: Process " << current_process.id << " terminated ";
         std::string o = print_queue(ready_queue);
         cout << o << endl;
         // NEED TO FIGURE OUT HOW TO ACTUAL TERMINATE
@@ -155,14 +158,18 @@ int main(int argc, char *argv[])
       {
         current_process.status = "SWITCH_OUT";
         current_process.switch_time = curr_time + t_cs / 2;
-        output += "time " + to_string(curr_time) + "ms: PROCESS " + current_process.id + " completed a CPU burst;";
+        output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " completed a CPU burst; ";
+        output += to_string((current_process.cpu_burst_count - current_process.current_burst_index - 1) ); 
+        output += " bursts to go "; 
         output += print_queue(ready_queue) + "\n";
-        output += "time " + to_string(curr_time) + "ms: PROCESS " + current_process.id + " switching out of CPU; blocking on I/O ";
+        output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " switching out of CPU; blocking on I/O until time ";
+        output += to_string( curr_time + current_process.io_current_burst_finish_time ); 
+        output += "ms ";
         output += print_queue(ready_queue) + "\n";
+        // current_process.io_current_burst_finish_time = curr_time + current_process.io_current_burst_finish_time;
         // current_process = Process();
       }
     }
-    // DOOM!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     else if (current_process.status == "SWITCH_OUT")
     {
       if (curr_time >= current_process.switch_time)
@@ -170,6 +177,7 @@ int main(int argc, char *argv[])
         current_process.status = "WAITING";
         current_process.io_current_burst_finish_time = curr_time + current_process.io_bursts[current_process.current_burst_index];
         waiting_queue.push_back(current_process);
+        // cout << print_queue(waiting_queue) << endl;
         // current_process = Process();
       }
     }
@@ -206,7 +214,7 @@ int main(int argc, char *argv[])
       {
         current_process.status = "RUNNING";
         current_process.cpu_current_burst_finish_time = curr_time + current_process.cpu_bursts[current_process.current_burst_index];
-        output += "time " + to_string(curr_time) + "ms: PROCESS " + current_process.id + " started using the CPU for ";
+        output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " started using the CPU for ";
         output += to_string(current_process.cpu_bursts[current_process.current_burst_index]) + "ms burst ";
         output += print_queue(ready_queue) + "\n";
       }
@@ -228,6 +236,7 @@ int main(int argc, char *argv[])
     // IO BURST COMPLETION
     while (!waiting_queue.empty() && waiting_queue.front().io_current_burst_finish_time <= curr_time)
     {
+      // cout << "Test" << endl;
       Process temp = waiting_queue.front();
       temp.status = "READY";
       temp.current_burst_index = temp.current_burst_index + 1;
@@ -239,7 +248,7 @@ int main(int argc, char *argv[])
       temp.cpu_current_burst_finish_time = add_time + temp.cpu_bursts[temp.current_burst_index];
       ready_queue.push_back(temp);
       waiting_queue.pop_front();
-      output += "time " + to_string(curr_time) + "ms: PROCESS " + temp.id + " completed I/O; added to ready queue ";
+      output += "time " + to_string(curr_time) + "ms: Process " + temp.id + " completed I/O; added to ready queue ";
       output += print_queue(ready_queue) + "\n";
     }
 
@@ -251,7 +260,7 @@ int main(int argc, char *argv[])
       // temp.cpu_current_burst_finish_time = curr_time + temp.cpu_bursts[temp.current_burst_index];
       ready_queue.push_back(temp);
       arrival_queue.pop();
-      output += "time " + to_string(curr_time) + "ms: PROCESS " + temp.id + " arrived; added to ready queue ";
+      output += "time " + to_string(curr_time) + "ms: Process " + temp.id + " arrived; added to ready queue ";
       output += print_queue(ready_queue) + "\n";
     }
 
