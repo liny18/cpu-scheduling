@@ -1,85 +1,18 @@
 #include "FCFS.h"
-#include "Process.h"
+#include "util.h"
 #include <cmath>
 #include <iostream>
 #include <queue>
 
-using namespace std;
-
-auto arrival_cmp = [](Process p1, Process p2)
-{
-    if (p1.arrival_time == p2.arrival_time)
-    {
-        return p1.id > p2.id;
-    }
-    return p1.arrival_time > p2.arrival_time;
-};
-
-auto waiting_cmp = [](Process p1, Process p2)
-{
-    if (p1.io_current_burst_finish_time == p2.io_current_burst_finish_time)
-    {
-        return p1.id > p2.id;
-    }
-    return p1.io_current_burst_finish_time > p2.io_current_burst_finish_time;
-};
-
-auto ready_cmp = [](Process p1, Process p2)
-{
-    if (p1.arrival_time == p2.arrival_time)
-    {
-        return p1.id > p2.id;
-    }
-    return p1.arrival_time > p2.arrival_time;
-};
-
-string print_queue(const deque<Process> &queue)
-{
-    if (queue.empty())
-    {
-        return "[Q <empty>]";
-    }
-
-    string output = "[Q";
-    for (const auto &process : queue)
-    {
-        string temp = " ";
-        temp += process.id;
-        output += temp;
-    }
-    output += "]";
-    return output;
-}
-
-string print_queue(const priority_queue<Process, vector<Process>, decltype(ready_cmp)> &queue)
-{
-    if (queue.empty())
-    {
-        return "[Q <empty>]";
-    }
-
-    string output = "[Q";
-    priority_queue<Process, vector<Process>, decltype(ready_cmp)> temp = queue;
-    while (!temp.empty())
-    {
-        string temp_str = " ";
-        temp_str += temp.top().id;
-        output += temp_str;
-        temp.pop();
-    }
-    output += "]";
-    return output;
-}
-
 void run_fcfs(vector<Process> processes, int t_cs)
 {
-    priority_queue<Process, vector<Process>, decltype(arrival_cmp)> arrival_queue(arrival_cmp);
+    priority_queue<Process, vector<Process>, ArrivalComparator> arrival_queue;
     for (auto p : processes)
         arrival_queue.push(p);
 
     // deque<Process> ready_queue;
-    priority_queue<Process, vector<Process>, decltype(ready_cmp)> ready_queue(ready_cmp);
-    priority_queue<Process, vector<Process>, decltype(waiting_cmp)> waiting_queue(waiting_cmp);
+    priority_queue<Process, vector<Process>, ReadyComparator> ready_queue;
+    priority_queue<Process, vector<Process>, WaitingComparator> waiting_queue;
 
     int curr_time = 0;
     Process current_process = Process();

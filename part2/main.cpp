@@ -1,5 +1,5 @@
 #include "FCFS.h"
-// #include "RR.h"
+#include "RR.h"
 // #include "SJF.h"
 // #include "SRT.h"
 #include "Process.h"
@@ -93,14 +93,15 @@ int main(int argc, char *argv[])
   std::vector<Process> processes;
   generate_processes(n, upper_bound, cpu_bound_begin, lambda, processes);
 
-  // std::cout << "<<< PROJECT PART I -- process set (n=" << n << ") with " << n_cpu << " CPU-bound " << (n_cpu == 1 ? "process >>>" : "processes >>>") << std::endl;
+  std::cout << "<<< PROJECT PART I -- process set (n=" << n << ") with " << n_cpu << " CPU-bound " << (n_cpu == 1 ? "process >>>" : "processes >>>") << std::endl;
 
-  // print_processes(processes, cpu_bound_begin);
+  print_processes(processes, cpu_bound_begin);
 
   std::cout << "<<< PROJECT PART II -- t_cs=" << t_cs << "ms; alpha=" << alpha << "; t_slice=" << t_slice << "ms >>>" << std::endl;
 
-  // PART 2 START : FCFS
+  // PART 2 START
   run_fcfs(processes, t_cs);
+  // run_rr(processes, t_cs, t_slice);
 
   return 0;
 }
