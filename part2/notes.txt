@@ -1,0 +1,5 @@
+RUNNING -> SWITCH_OUT/TERMINATED -> WAITING -> READY -> SWITCH_IN -> RUNNING
+
+FCFS:
+Arrival queue is PQ because we need to get the process with the lowest arrival time first
+Ready queue is DQ because we want whichever process was added first to be the first to run
