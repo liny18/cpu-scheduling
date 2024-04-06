@@ -37,7 +37,11 @@ struct ReadyComparator
   {
     if (p1.arrival_time == p2.arrival_time)
     {
-      return p1.id > p2.id;
+      if (p1.priority == p2.priority)
+      {
+        return p1.id > p2.id;
+      }
+      return p1.priority < p2.priority;
     }
     return p1.arrival_time > p2.arrival_time;
   }

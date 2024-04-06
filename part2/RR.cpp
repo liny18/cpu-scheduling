@@ -32,7 +32,7 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice)
   int curr_time = 0;
   Process current_process = Process();
 
-  cout << "time " << curr_time << "ms: Simulator started for Round Robin [Q <empty>]" << endl;
+  cout << "time " << curr_time << "ms: Simulator started for RR [Q <empty>]" << endl;
 
   while (true)
   {
@@ -53,7 +53,7 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice)
     string output = "";
     if (arrival_queue.empty() && ready_queue.empty() && waiting_queue.empty() && current_process.status == "TERMINATED")
     {
-      cout << "time " << curr_time + t_cs / 2 - 1 << "ms: Simulator ended for Round Robin [Q <empty>]" << endl;
+      cout << "time " << curr_time + t_cs / 2 - 1 << "ms: Simulator ended for RR [Q <empty>]" << endl;
       break;
     }
     // CPU BURST COMPLETION:
@@ -80,7 +80,6 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice)
         output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " switching out of CPU; blocking on I/O until time ";
         // might have issue, not sure why io_current_burst_finish_time won't work here
         output += to_string(current_process.switch_time + current_process.io_bursts[current_process.current_burst_index]) + "ms ";
-        output += "ms ";
         output += print_queue(ready_queue) + "\n";
       }
     }
@@ -122,6 +121,7 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice)
         current_process.status = "READY";
         current_process.arrival_time = curr_time;
         current_process.was_preempted = true;
+        current_process.priority = 100;
         ready_queue.push(current_process);
       }
     }
@@ -129,7 +129,7 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice)
     // PROCESS STARTS USING CPU
     if (current_process.status == "SWITCH_IN")
     {
-      cout << current_process.id << " " << current_process.switch_time << " " << curr_time << endl;
+      // cout << current_process.id << " " << current_process.switch_time << " " << curr_time << endl;
       if (curr_time >= current_process.switch_time)
       {
         current_process.status = "RUNNING";
@@ -137,13 +137,16 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice)
         if (current_process.was_preempted) {
           current_process.cpu_current_burst_finish_time = curr_time + current_process.cpu_current_burst_remaining_time;
           current_process.was_preempted = false;
+          output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " started using the CPU for remaining ";
+          output += to_string(current_process.cpu_current_burst_remaining_time) + "ms of " + to_string(current_process.cpu_bursts[current_process.current_burst_index]) + "ms burst ";
+          output += print_queue(ready_queue) + "\n";
         }
         else {
           current_process.cpu_current_burst_finish_time = curr_time + current_process.cpu_bursts[current_process.current_burst_index];
-        }
         output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " started using the CPU for ";
         output += to_string(current_process.cpu_bursts[current_process.current_burst_index]) + "ms burst ";
         output += print_queue(ready_queue) + "\n";
+        }
       }
     }
 
@@ -153,6 +156,7 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice)
       Process temp = waiting_queue.top();
       temp.status = "READY";
       temp.arrival_time = curr_time;
+      temp.priority = 10;
       temp.current_burst_index = temp.current_burst_index + 1;
       temp.cpu_current_burst_remaining_time = temp.cpu_bursts[temp.current_burst_index];
       // temp.cpu_current_burst_finish_time = curr_time + temp.cpu_bursts[temp.current_burst_index];
@@ -163,23 +167,45 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice)
     }
 
     // NEW PROCESS ARRIVALS
+    // if (curr_time <= 286)
+    // {
+    //   cout << current_process.id << " " <<current_process.status << " " << current_process.switch_time << " " << curr_time << endl;
+    // }
     while (!arrival_queue.empty() && arrival_queue.top().arrival_time <= curr_time)
     {
       Process temp = arrival_queue.top();
       temp.status = "READY";
       // temp.cpu_current_burst_finish_time = curr_time + temp.cpu_bursts[temp.current_burst_index];
       temp.arrival_time = curr_time;
+      temp.priority = 10;
       ready_queue.push(temp);
       arrival_queue.pop();
       output += "time " + to_string(curr_time) + "ms: Process " + temp.id + " arrived; added to ready queue ";
       output += print_queue(ready_queue) + "\n";
     }
 
+      // if (curr_time >= 285 && curr_time <= 287)
+      // {
+      //   cout << current_process.id << " " <<current_process.status << " " << current_process.switch_time << " " << curr_time << endl;
+      //   //print ready queue
+      //   priority_queue<Process, vector<Process>, ReadyComparator> temp_ready_queue = ready_queue;
+      //   while (!temp_ready_queue.empty())
+      //   {
+      //     Process temp = temp_ready_queue.top();
+      //     cout << temp.id << " " << temp.arrival_time << " ";
+      //     temp_ready_queue.pop();
+      //   }
+      //   cout << endl;
+      // }
     // check if current process is not running
     // infinite loop here bc ts is somehow never running
-    if (!ready_queue.empty() && (current_process.status == "WAITING" || (current_process.status == "TERMINATED" && curr_time >= current_process.switch_time) || (current_process.status == "SWITCH_OUT" && curr_time >= current_process.switch_time) || (current_process.status == "PREEMPTED" && curr_time >= current_process.switch_time)))
+    // if (curr_time >= 286 && curr_time <= 300)
+    // {
+    //   cout << current_process.id << " " <<current_process.status << " " << current_process.switch_time << " " << curr_time << endl;
+    // }
+    if (!ready_queue.empty() && (current_process.status == "WAITING" || (current_process.status == "TERMINATED" && curr_time >= current_process.switch_time) || (current_process.status == "SWITCH_OUT" && curr_time >= current_process.switch_time) || (current_process.status == "PREEMPTED" && curr_time >= current_process.switch_time)) || (current_process.status == "READY" && current_process.was_preempted))
     {
-      cout << current_process.id << " " << current_process.switch_time << " " << curr_time << endl;
+      // cout << current_process.id << " " << current_process.switch_time << " " << curr_time << endl;
       Process temp = ready_queue.top();
       temp.status = "SWITCH_IN";
       temp.switch_time = curr_time + t_cs / 2;
