@@ -1,4 +1,4 @@
-#include "FCFS.h"
+#include "RR.h"
 #include "Process.h"
 #include <cmath>
 #include <iostream>
@@ -71,7 +71,7 @@ string print_queue(const priority_queue<Process, vector<Process>, decltype(ready
     return output;
 }
 
-void run_fcfs(vector<Process> processes, int t_cs)
+void run_rr(vector<Process> processes, int t_cs)
 {
     priority_queue<Process, vector<Process>, decltype(arrival_cmp)> arrival_queue(arrival_cmp);
     for (auto p : processes)
@@ -84,7 +84,7 @@ void run_fcfs(vector<Process> processes, int t_cs)
     int curr_time = 0;
     Process current_process = Process();
 
-    cout << "time " << curr_time << "ms: Simulator started for FCFS [Q <empty>]" << endl;
+    cout << "time " << curr_time << "ms: Simulator started for Round Robin [Q <empty>]" << endl;
 
     while (true)
     {
@@ -94,7 +94,7 @@ void run_fcfs(vector<Process> processes, int t_cs)
         string output = "";
         if (arrival_queue.empty() && ready_queue.empty() && waiting_queue.empty() && current_process.status == "TERMINATED")
         {
-            cout << "time " << curr_time + t_cs / 2 - 1 << "ms: Simulator ended for FCFS [Q <empty>]" << endl;
+            cout << "time " << curr_time + t_cs / 2 - 1 << "ms: Simulator ended for Round Robin [Q <empty>]" << endl;
             break;
         }
         // CPU BURST COMPLETION:

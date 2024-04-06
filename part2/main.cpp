@@ -1,4 +1,7 @@
 #include "FCFS.h"
+#include "RR.h"
+#include "SJF.h"
+#include "SRT.h"
 #include "Process.h"
 #include <cmath>
 #include <iostream>
