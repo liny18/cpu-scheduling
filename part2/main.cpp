@@ -57,11 +57,11 @@ void print_processes(const std::vector<Process> &processes,
   {
     if (count < cpu_bound_begin)
     {
-      std::cout << "ms: I/O-bound process ";
+      std::cout << "I/O-bound process ";
     }
     else
     {
-      std::cout << "ms: CPU-bound process ";
+      std::cout << "CPU-bound process ";
     }
     std::cout << process.id << ": arrival time " << process.arrival_time << "ms; " << process.cpu_burst_count << " CPU bursts" << std::endl;
     count++;
@@ -96,12 +96,15 @@ int main(int argc, char *argv[])
   std::cout << "<<< PROJECT PART I -- process set (n=" << n << ") with " << n_cpu << " CPU-bound " << (n_cpu == 1 ? "process >>>" : "processes >>>") << std::endl;
 
   print_processes(processes, cpu_bound_begin);
+  cout << endl;
 
   std::cout << "<<< PROJECT PART II -- t_cs=" << t_cs << "ms; alpha=" << alpha << "; t_slice=" << t_slice << "ms >>>" << std::endl;
 
   // PART 2 START
-  run_fcfs(processes, t_cs);
-  // run_rr(processes, t_cs, t_slice);
+  // run_fcfs(processes, t_cs);
+  // cout << endl;
+
+  run_rr(processes, t_cs, t_slice);
 
   return 0;
 }

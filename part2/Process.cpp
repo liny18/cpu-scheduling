@@ -5,6 +5,7 @@ Process::Process(char id, int arrival_time, int cpu_burst_count, std::vector<int
 {
     cpu_current_burst_finish_time = cpu_bursts[0];
     io_current_burst_finish_time = io_bursts[0];
+    cpu_current_burst_remaining_time = cpu_bursts[0];
     status = "WAITING";
 }
 

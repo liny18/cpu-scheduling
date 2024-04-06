@@ -54,16 +54,6 @@ void run_fcfs(vector<Process> processes, int t_cs)
                 output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " switching out of CPU; blocking on I/O until time ";
                 // might have issue, not sure why io_current_burst_finish_time won't work here
                 output += to_string(current_process.switch_time + current_process.io_bursts[current_process.current_burst_index]) + "ms ";
-                // print every io burst in the process
-                // if (curr_time == 9056)
-                // {
-                //   cout << "current index: " << current_process.current_burst_index << endl;
-                //   for (int i = 0; i < current_process.cpu_burst_count - 1; i++)
-                //   {
-                //     cout << current_process.switch_time + current_process.io_bursts[i] << "ms "
-                //          << current_process.switch_time + current_process.io_current_burst_finish_time << "ms\n";
-                //   }
-                // }
                 output += "ms ";
                 output += print_queue(ready_queue) + "\n";
             }
