@@ -108,6 +108,7 @@ void run_fcfs(vector<Process> processes, int t_cs)
                 string o = print_queue(ready_queue);
                 cout << o << endl;
                 // NEED TO FIGURE OUT HOW TO ACTUAL TERMINATE
+                current_process.switch_time = curr_time + t_cs / 2;
             }
             else
             {
@@ -186,7 +187,7 @@ void run_fcfs(vector<Process> processes, int t_cs)
         }
 
         // check if current process is not running
-        if (!ready_queue.empty() && (current_process.status == "WAITING" || current_process.status == "TERMINATED" || (current_process.status == "SWITCH_OUT" && curr_time >= current_process.switch_time)))
+        if (!ready_queue.empty() && (current_process.status == "WAITING" || (current_process.status == "TERMINATED" && curr_time >= current_process.switch_time) || (current_process.status == "SWITCH_OUT" && curr_time >= current_process.switch_time)))
         {
             Process temp = ready_queue.top();
             temp.status = "SWITCH_IN";
@@ -199,6 +200,7 @@ void run_fcfs(vector<Process> processes, int t_cs)
         {
             cout << output;
         }
+
         curr_time++;
     }
 }
