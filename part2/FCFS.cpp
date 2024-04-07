@@ -60,7 +60,6 @@ void run_fcfs(vector<Process> processes, int t_cs)
                 output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " switching out of CPU; blocking on I/O until time ";
                 // might have issue, not sure why io_current_burst_finish_time won't work here
                 output += to_string(current_process.switch_time + current_process.io_bursts[current_process.current_burst_index]) + "ms ";
-                output += "ms ";
                 output += print_queue(ready_queue) + "\n";
             }
         }
@@ -125,10 +124,10 @@ void run_fcfs(vector<Process> processes, int t_cs)
             current_process = temp;
         }
 
-        if (curr_time < 10000)
-        {
+        // if (curr_time < 10000)
+        // {
             cout << output;
-        }
+        // }
 
         curr_time++;
     }

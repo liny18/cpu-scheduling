@@ -5,6 +5,7 @@
 #include "Process.h"
 #include <cmath>
 #include <iostream>
+#include <iomanip>
 
 float next_exp(float lambda, int upper_bound)
 {
@@ -98,19 +99,20 @@ int main(int argc, char *argv[])
   print_processes(processes, cpu_bound_begin);
   cout << endl;
 
-  std::cout << "<<< PROJECT PART II -- t_cs=" << t_cs << "ms; alpha=" << alpha << "; t_slice=" << t_slice << "ms >>>" << std::endl;
+  std::cout << "<<< PROJECT PART II -- t_cs=" << t_cs << "ms; alpha=" << fixed << setprecision(2)  << alpha << "; t_slice=" << t_slice << "ms >>>" << std::endl;
 
   // PART 2 START
   run_fcfs(processes, t_cs);
-  cout << endl;
-
-  run_rr(processes, t_cs, t_slice);
   cout << endl;
 
   run_sjf(processes, t_cs, alpha, lambda);
   cout << endl;
 
   run_srt(processes, t_cs, alpha, lambda);
+  cout << endl;
+
+  run_rr(processes, t_cs, t_slice);
+  // cout << endl;
 
   return 0;
 }

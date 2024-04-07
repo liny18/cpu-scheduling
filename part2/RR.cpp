@@ -218,10 +218,10 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice)
       current_process.cpu_current_burst_remaining_time--;
     }
 
-    if (curr_time < 10000)
-    {
+    // if (curr_time < 10000)
+    // {
       cout << output;
-    }
+    // }
 
     curr_time++;
   }

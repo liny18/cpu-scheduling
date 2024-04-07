@@ -218,10 +218,10 @@ void run_srt(vector<Process> processes, int t_cs, float alpha, float lambda)
             current_process.cpu_current_burst_remaining_time_dec--;
         }
 
-        if (curr_time < 10000)
-        {
+        // if (curr_time < 10000)
+        // {
             cout << output;
-        }
+        // }
 
         curr_time++;
     }
