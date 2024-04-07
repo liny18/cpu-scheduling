@@ -203,7 +203,7 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice)
     // {
     //   cout << current_process.id << " " <<current_process.status << " " << current_process.switch_time << " " << curr_time << endl;
     // }
-    if (!ready_queue.empty() && (current_process.status == "WAITING" || (current_process.status == "TERMINATED" && curr_time >= current_process.switch_time) || (current_process.status == "SWITCH_OUT" && curr_time >= current_process.switch_time) || (current_process.status == "PREEMPTED" && curr_time >= current_process.switch_time)) || (current_process.status == "READY" && current_process.was_preempted))
+    if (!ready_queue.empty() && ((current_process.status == "WAITING" || (current_process.status == "TERMINATED" && curr_time >= current_process.switch_time) || (current_process.status == "SWITCH_OUT" && curr_time >= current_process.switch_time) || (current_process.status == "PREEMPTED" && curr_time >= current_process.switch_time)) || (current_process.status == "READY" && current_process.was_preempted)))
     {
       // cout << current_process.id << " " << current_process.switch_time << " " << curr_time << endl;
       Process temp = ready_queue.top();
