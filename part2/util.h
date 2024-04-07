@@ -74,6 +74,11 @@ struct ReadyComparatorSRT
   };
 };
 
+struct StatisticsHelper {
+  int total_time = 0; 
+  int cpu_used_time = 0; 
+};
+
 string print_queue(const priority_queue<Process, vector<Process>, ReadyComparator> &queue);
 string print_queue_sjf(const priority_queue<Process, vector<Process>, ReadyComparatorSJF> &queue);
 string print_queue_srt(const priority_queue<Process, vector<Process>, ReadyComparatorSRT> &queue);

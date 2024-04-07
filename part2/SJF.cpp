@@ -1,10 +1,9 @@
 #include "SJF.h"
-#include "util.h"
 #include <cmath>
 #include <iostream>
 #include <queue>
 
-void run_sjf(vector<Process> processes, int t_cs, float alpha, float lambda)
+void run_sjf(vector<Process> processes, int t_cs, float alpha, float lambda, StatisticsHelper &stats)
 {
     priority_queue<Process, vector<Process>, ArrivalComparator> arrival_queue;
     for (auto p : processes)
@@ -29,6 +28,9 @@ void run_sjf(vector<Process> processes, int t_cs, float alpha, float lambda)
             cout << "time " << curr_time + t_cs / 2 - 1 << "ms: Simulator ended for SJF [Q <empty>]" << endl;
             break;
         }
+
+        if(current_process.status == "RUNNING") stats.cpu_used_time++;
+
         // CPU BURST COMPLETION:
         if (current_process.status == "RUNNING" && curr_time >= current_process.cpu_current_burst_finish_time)
         {
@@ -147,4 +149,6 @@ void run_sjf(vector<Process> processes, int t_cs, float alpha, float lambda)
 
         curr_time++;
     }
+
+    stats.total_time = curr_time; 
 }

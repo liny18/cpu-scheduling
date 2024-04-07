@@ -1,5 +1,4 @@
 #include "RR.h"
-#include "util.h"
 #include <cmath>
 #include <iostream>
 #include <queue>
@@ -9,7 +8,7 @@ bool gotta_preempt(Process a, int t_slice)
   return (a.cpu_bursts[a.current_burst_index] - a.cpu_current_burst_remaining_time) % t_slice == 0;
 }
 
-void run_rr(vector<Process> processes, int t_cs, int t_slice)
+void run_rr(vector<Process> processes, int t_cs, int t_slice, StatisticsHelper &stats)
 {
   priority_queue<Process, vector<Process>, ArrivalComparator>
       arrival_queue;
@@ -45,6 +44,7 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice)
       cout << "time " << curr_time + t_cs / 2 - 1 << "ms: Simulator ended for RR [Q <empty>]" << endl;
       break;
     }
+
     // CPU BURST COMPLETION:
     if (current_process.status == "RUNNING" && curr_time >= current_process.cpu_current_burst_finish_time)
     {
@@ -216,6 +216,7 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice)
     if (current_process.status == "RUNNING")
     {
       current_process.cpu_current_burst_remaining_time--;
+      stats.cpu_used_time++; 
     }
 
     if (curr_time < 10000)
@@ -225,4 +226,6 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice)
 
     curr_time++;
   }
+
+  stats.total_time = curr_time; 
 }

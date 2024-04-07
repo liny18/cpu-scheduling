@@ -1,5 +1,4 @@
 #include "SRT.h"
-#include "util.h"
 #include <cmath>
 #include <iostream>
 #include <queue>
@@ -11,7 +10,7 @@ bool gotta_preempt(Process a, priority_queue<Process, vector<Process>, ReadyComp
     return a.tau - (a.cpu_bursts[a.current_burst_index] - a.cpu_current_burst_remaining_time_dec) > ready_queue.top().tau - (ready_queue.top().cpu_bursts[ready_queue.top().current_burst_index] - ready_queue.top().cpu_current_burst_remaining_time_dec);
 }
 
-void run_srt(vector<Process> processes, int t_cs, float alpha, float lambda)
+void run_srt(vector<Process> processes, int t_cs, float alpha, float lambda, StatisticsHelper &stats)
 {
     priority_queue<Process, vector<Process>, ArrivalComparator> arrival_queue;
     for (auto p : processes)
@@ -44,6 +43,12 @@ void run_srt(vector<Process> processes, int t_cs, float alpha, float lambda)
             cout << "time " << curr_time + t_cs / 2 - 1 << "ms: Simulator ended for SRT [Q <empty>]" << endl;
             break;
         }
+
+        if (current_process.status == "RUNNING")
+        {
+            stats.cpu_used_time++;
+        }
+
         // CPU BURST COMPLETION:
         if (current_process.status == "RUNNING" && curr_time >= current_process.cpu_current_burst_finish_time)
         {
@@ -51,6 +56,7 @@ void run_srt(vector<Process> processes, int t_cs, float alpha, float lambda)
             {
                 // output += "time " + to_string(curr_time) + "ms: PROCESS " + current_process.id + " terminated\n";
                 current_process.status = "TERMINATED";
+                // stats.cpu_used_time++;
                 cout << "time " << curr_time << "ms: Process " << current_process.id << " terminated ";
                 string o = print_queue_srt(ready_queue);
                 cout << o << endl;
@@ -234,4 +240,6 @@ void run_srt(vector<Process> processes, int t_cs, float alpha, float lambda)
 
         curr_time++;
     }
+
+    stats.total_time = curr_time;
 }

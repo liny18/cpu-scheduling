@@ -3,9 +3,11 @@
 #include "SJF.h"
 #include "SRT.h"
 #include "Process.h"
+#include "util.h"
 #include <cmath>
 #include <iostream>
 #include <iomanip>
+
 
 float next_exp(float lambda, int upper_bound)
 {
@@ -102,16 +104,26 @@ int main(int argc, char *argv[])
   std::cout << "<<< PROJECT PART II -- t_cs=" << t_cs << "ms; alpha=" << fixed << setprecision(2) << alpha << "; t_slice=" << t_slice << "ms >>>" << std::endl;
 
   // PART 2 START
-  run_fcfs(processes, t_cs);
+
+  StatisticsHelper fcfs_stats; 
+  StatisticsHelper sjf_stats; 
+  StatisticsHelper srt_stats; 
+  StatisticsHelper rr_stats; 
+
+  run_fcfs(processes, t_cs, fcfs_stats);
   cout << endl;
 
-  run_sjf(processes, t_cs, alpha, lambda);
+  run_sjf(processes, t_cs, alpha, lambda, sjf_stats);
   cout << endl;
 
-  run_srt(processes, t_cs, alpha, lambda);
+  run_srt(processes, t_cs, alpha, lambda, srt_stats);
   cout << endl;
 
-  run_rr(processes, t_cs, t_slice);
+  run_rr(processes, t_cs, t_slice, rr_stats);
+  cout << fixed << setprecision(3) << (float) fcfs_stats.cpu_used_time / fcfs_stats.total_time * 100 << endl;
+  cout << fixed << setprecision(3) << (float) sjf_stats.cpu_used_time / sjf_stats.total_time * 100 << endl;
+  cout << fixed << setprecision(3) << (float) srt_stats.cpu_used_time / srt_stats.total_time * 100 << endl;
+  cout << fixed << setprecision(3) << (float) rr_stats.cpu_used_time / rr_stats.total_time * 100 << endl;
 
   return 0;
 }
