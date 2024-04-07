@@ -1,34 +1,46 @@
 #include "process.h"
-#include<iostream>
-#include<cmath>
+#include <iostream>
+#include <cmath>
 #include "cpu.h"
-bool Process::operator>(const Process& rhs) const {
-    if(CPU::cpuType == "FCFS" || CPU::cpuType == "RR"){
+bool Process::operator>(const Process &rhs) const
+{
+    if (CPU::cpuType == "FCFS" || CPU::cpuType == "RR")
+    {
         return this->FCFS_Comparator(rhs);
-    } else if(CPU::cpuType == "SJF" || CPU::cpuType == "SRT" ){
-        return this-> SJF_Comparator(rhs);
-    } else {
+    }
+    else if (CPU::cpuType == "SJF" || CPU::cpuType == "SRT")
+    {
+        return this->SJF_Comparator(rhs);
+    }
+    else
+    {
         return false;
     }
 }
-bool Process::FCFS_Comparator(const Process& other) const {
-    if(this->arrivalTime == other.arrivalTime)
+bool Process::FCFS_Comparator(const Process &other) const
+{
+    if (this->arrivalTime == other.arrivalTime)
     {
-        if(this->arrivalStatus == other.arrivalStatus)
+        if (this->arrivalStatus == other.arrivalStatus)
             return this->PID > other.PID;
         else
             return this->arrivalStatus < other.arrivalStatus;
     }
     return this->arrivalTime > other.arrivalTime;
 }
-bool Process::SJF_Comparator(const Process& other) const{
-   int time1 = this->tau - this->getTimeElapsed();
+bool Process::SJF_Comparator(const Process &other) const
+{
+    int time1 = this->tau - this->getTimeElapsed();
     int time2 = other.tau - other.getTimeElapsed();
-    if(time1 == time2)
+
+    std::cout << "p1.id: " << this->PID << " p1.tau: " << this->tau << " p1.curr: " << this->getCPUBurstTime() << " p1.remain " << this->getRemainingBurstTime() << std::endl;
+    std::cout << "p2.id: " << other.PID << " p2.tau: " << other.tau << " p2.curr: " << other.getCPUBurstTime() << " p2.remain " << other.getRemainingBurstTime() << std::endl;
+    if (time1 == time2)
         return this->PID > other.PID;
     return time1 > time2;
 }
-void Process::recalculateTau(int newBurst) {
+void Process::recalculateTau(int newBurst)
+{
     tau = ceil(alpha * newBurst + (1.0 - alpha) * tau);
 }
 

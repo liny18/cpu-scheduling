@@ -82,19 +82,19 @@ int main(int argc, char *argv[])
     std::cout << std::endl
               << "<<< PROJECT PART II -- t_cs=" << ctxSwitch << "ms; alpha=" << std::fixed << std::setprecision(2) << alpha << "; t_slice=" << tSlice << "ms >>>" << std::endl;
     // FCFS Code
-    CPU::cpuType = "FCFS";
-    RunFCFS(cpu);
-    std::cout << std::endl;
+    // CPU::cpuType = "FCFS";
+    // RunFCFS(cpu);
+    // std::cout << std::endl;
 
     // //SJF Code
     // CPU::cpuType = "SJF";
     // RunSJF(cpu);
     // std::cout << std::endl;
 
-    // //SRT Code
-    // CPU::cpuType = "SRT";
-    // RunSRT(cpu);
-    // std::cout << std::endl;
+    // SRT Code
+    CPU::cpuType = "SRT";
+    RunSRT(cpu);
+    std::cout << std::endl;
 
     // CPU::cpuType = "RR";
     // RunRR(cpu);

@@ -1,23 +1,22 @@
-#include "FCFS.h"
+#include "SJF.h"
 #include "util.h"
 #include <cmath>
 #include <iostream>
 #include <queue>
 
-void run_fcfs(vector<Process> processes, int t_cs)
+void run_sjf(vector<Process> processes, int t_cs, float alpha, float lambda)
 {
     priority_queue<Process, vector<Process>, ArrivalComparator> arrival_queue;
     for (auto p : processes)
         arrival_queue.push(p);
-
-    // deque<Process> ready_queue;
-    priority_queue<Process, vector<Process>, ReadyComparator> ready_queue;
+    priority_queue<Process, vector<Process>, ReadyComparatorSJF> ready_queue;
     priority_queue<Process, vector<Process>, WaitingComparator> waiting_queue;
 
     int curr_time = 0;
     Process current_process = Process();
+    current_process.tau = ceil(1 / lambda);
 
-    cout << "time " << curr_time << "ms: Simulator started for FCFS [Q <empty>]" << endl;
+    cout << "time " << curr_time << "ms: Simulator started for SJF [Q <empty>]" << endl;
 
     while (true)
     {
@@ -27,7 +26,7 @@ void run_fcfs(vector<Process> processes, int t_cs)
         string output = "";
         if (arrival_queue.empty() && ready_queue.empty() && waiting_queue.empty() && current_process.status == "TERMINATED")
         {
-            cout << "time " << curr_time + t_cs / 2 - 1 << "ms: Simulator ended for FCFS [Q <empty>]" << endl;
+            cout << "time " << curr_time + t_cs / 2 - 1 << "ms: Simulator ended for SJF [Q <empty>]" << endl;
             break;
         }
         // CPU BURST COMPLETION:
@@ -38,30 +37,43 @@ void run_fcfs(vector<Process> processes, int t_cs)
                 // output += "time " + to_string(curr_time) + "ms: PROCESS " + current_process.id + " terminated\n";
                 current_process.status = "TERMINATED";
                 cout << "time " << curr_time << "ms: Process " << current_process.id << " terminated ";
-                string o = print_queue(ready_queue);
+                string o = print_queue_sjf(ready_queue);
                 cout << o << endl;
+                // NEED TO FIGURE OUT HOW TO ACTUAL TERMINATE
                 current_process.switch_time = curr_time + t_cs / 2;
             }
             else
             {
                 current_process.status = "SWITCH_OUT";
                 current_process.switch_time = curr_time + t_cs / 2;
-                output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " completed a CPU burst; ";
+                output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " (tau " + to_string(current_process.tau) + "ms) " + "completed a CPU burst; ";
                 output += to_string((current_process.cpu_burst_count - current_process.current_burst_index - 1));
                 string b = " ";
-                if ((current_process.cpu_burst_count - current_process.current_burst_index - 1) == 1){
+                if ((current_process.cpu_burst_count - current_process.current_burst_index - 1) == 1)
+                {
                     b = " burst";
                 }
-                else {
+                else
+                {
                     b = " bursts";
                 }
                 output += b + " to go ";
-                output += print_queue(ready_queue) + "\n";
+                output += print_queue_sjf(ready_queue) + "\n";
+                output += "time " + to_string(curr_time) + "ms: Recalculating tau for process ";
+                output += current_process.id;
+                output += ": old tau ";
+                output += to_string(current_process.tau);
+                output += "ms ==> new tau ";
+                current_process.update_tau(alpha);
+                output += to_string(current_process.tau);
+                output += "ms ";
+                std::string o = print_queue_sjf(ready_queue);
+                output += o + "\n";
                 output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " switching out of CPU; blocking on I/O until time ";
                 // might have issue, not sure why io_current_burst_finish_time won't work here
                 output += to_string(current_process.switch_time + current_process.io_bursts[current_process.current_burst_index]) + "ms ";
-                output += "ms ";
-                output += print_queue(ready_queue) + "\n";
+                // output += "ms ";
+                output += print_queue_sjf(ready_queue) + "\n";
             }
         }
         else if (current_process.status == "SWITCH_OUT")
@@ -82,9 +94,10 @@ void run_fcfs(vector<Process> processes, int t_cs)
             {
                 current_process.status = "RUNNING";
                 current_process.cpu_current_burst_finish_time = curr_time + current_process.cpu_bursts[current_process.current_burst_index];
-                output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " started using the CPU for ";
+                current_process.cpu_current_burst_remaining_time = current_process.cpu_bursts[current_process.current_burst_index];
+                output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " (tau " + to_string(current_process.tau) + "ms) " + "started using the CPU for ";
                 output += to_string(current_process.cpu_bursts[current_process.current_burst_index]) + "ms burst ";
-                output += print_queue(ready_queue) + "\n";
+                output += print_queue_sjf(ready_queue) + "\n";
             }
         }
 
@@ -97,9 +110,10 @@ void run_fcfs(vector<Process> processes, int t_cs)
             temp.current_burst_index = temp.current_burst_index + 1;
             // temp.cpu_current_burst_finish_time = curr_time + temp.cpu_bursts[temp.current_burst_index];
             ready_queue.push(temp);
+            output += "time " + to_string(curr_time) + "ms: Process " + temp.id + " (tau " + to_string(waiting_queue.top().tau) + "ms)";
             waiting_queue.pop();
-            output += "time " + to_string(curr_time) + "ms: Process " + temp.id + " completed I/O; added to ready queue ";
-            output += print_queue(ready_queue) + "\n";
+            output += " completed I/O; added to ready queue ";
+            output += print_queue_sjf(ready_queue) + "\n";
         }
 
         // NEW PROCESS ARRIVALS
@@ -111,8 +125,9 @@ void run_fcfs(vector<Process> processes, int t_cs)
             temp.arrival_time = curr_time;
             ready_queue.push(temp);
             arrival_queue.pop();
-            output += "time " + to_string(curr_time) + "ms: Process " + temp.id + " arrived; added to ready queue ";
-            output += print_queue(ready_queue) + "\n";
+            output += "time " + to_string(curr_time) + "ms: Process " + temp.id + " (tau " + to_string(current_process.tau) + "ms)";
+            output += " arrived; added to ready queue ";
+            output += print_queue_sjf(ready_queue) + "\n";
         }
 
         // check if current process is not running
@@ -125,10 +140,10 @@ void run_fcfs(vector<Process> processes, int t_cs)
             current_process = temp;
         }
 
-        if (curr_time < 10000)
-        {
-            cout << output;
-        }
+        // if (curr_time < 10000)
+        // {
+        cout << output;
+        // }
 
         curr_time++;
     }

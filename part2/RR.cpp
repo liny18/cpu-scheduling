@@ -6,18 +6,7 @@
 
 bool gotta_preempt(Process a, int t_slice)
 {
-  if ((a.cpu_bursts[a.current_burst_index] - a.cpu_current_burst_remaining_time) % t_slice == 0)
-  {
-    // cout << a.current_burst_index << " " << a.cpu_burst_count << endl;
-    // for (int i = 0; i < a.cpu_burst_count; i++)
-    // {
-    //   cout << a.cpu_bursts[i] << " ";
-    // }
-    // cout << endl;
-    // cout << a.cpu_current_burst_finish_time << " " << a.cpu_current_burst_remaining_time << " " << t_slice << endl;
-    return true;
-  }
-  return false;
+  return (a.cpu_bursts[a.current_burst_index] - a.cpu_current_burst_remaining_time) % t_slice == 0;
 }
 
 void run_rr(vector<Process> processes, int t_cs, int t_slice)
@@ -36,19 +25,19 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice)
 
   while (true)
   {
-    //ouput everything in ready queue
-    // if (curr_time >= 287 && curr_time <= 300) {
-    //   priority_queue<Process, vector<Process>, ReadyComparator> temp_ready_queue = ready_queue;
-    //   while (!temp_ready_queue.empty())
-    //   {
-    //     Process temp = temp_ready_queue.top();
-    //     cout << temp.id << " " << temp.arrival_time << " " << temp.cpu_burst_count << " ";
-    //     temp_ready_queue.pop();
-    //   }
-    //   cout << endl;
-    // }
-    // cout << "time " << curr_time << " " << arrival_queue.size() << " " << ready_queue.size() << " " << waiting_queue.size() << endl;
-    // terminate when to complete
+    // ouput everything in ready queue
+    //  if (curr_time >= 287 && curr_time <= 300) {
+    //    priority_queue<Process, vector<Process>, ReadyComparator> temp_ready_queue = ready_queue;
+    //    while (!temp_ready_queue.empty())
+    //    {
+    //      Process temp = temp_ready_queue.top();
+    //      cout << temp.id << " " << temp.arrival_time << " " << temp.cpu_burst_count << " ";
+    //      temp_ready_queue.pop();
+    //    }
+    //    cout << endl;
+    //  }
+    //  cout << "time " << curr_time << " " << arrival_queue.size() << " " << ready_queue.size() << " " << waiting_queue.size() << endl;
+    //  terminate when to complete
     //(a) CPU burst completion; (b) process starts using the CPU; (c) I/O burst completions; and (d) new process arrivals
     string output = "";
     if (arrival_queue.empty() && ready_queue.empty() && waiting_queue.empty() && current_process.status == "TERMINATED")
@@ -75,7 +64,16 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice)
         current_process.switch_time = curr_time + t_cs / 2;
         output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " completed a CPU burst; ";
         output += to_string((current_process.cpu_burst_count - current_process.current_burst_index - 1));
-        output += " bursts to go ";
+        string b = " ";
+        if ((current_process.cpu_burst_count - current_process.current_burst_index - 1) == 1)
+        {
+          b = " burst";
+        }
+        else
+        {
+          b = " bursts";
+        }
+        output += b + " to go ";
         output += print_queue(ready_queue) + "\n";
         output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " switching out of CPU; blocking on I/O until time ";
         // might have issue, not sure why io_current_burst_finish_time won't work here
@@ -134,18 +132,20 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice)
       {
         current_process.status = "RUNNING";
         // issue here, if process was preempted, it needs to end at the remaining time
-        if (current_process.was_preempted) {
+        if (current_process.was_preempted)
+        {
           current_process.cpu_current_burst_finish_time = curr_time + current_process.cpu_current_burst_remaining_time;
           current_process.was_preempted = false;
           output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " started using the CPU for remaining ";
           output += to_string(current_process.cpu_current_burst_remaining_time) + "ms of " + to_string(current_process.cpu_bursts[current_process.current_burst_index]) + "ms burst ";
           output += print_queue(ready_queue) + "\n";
         }
-        else {
+        else
+        {
           current_process.cpu_current_burst_finish_time = curr_time + current_process.cpu_bursts[current_process.current_burst_index];
-        output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " started using the CPU for ";
-        output += to_string(current_process.cpu_bursts[current_process.current_burst_index]) + "ms burst ";
-        output += print_queue(ready_queue) + "\n";
+          output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " started using the CPU for ";
+          output += to_string(current_process.cpu_bursts[current_process.current_burst_index]) + "ms burst ";
+          output += print_queue(ready_queue) + "\n";
         }
       }
     }
@@ -184,19 +184,19 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice)
       output += print_queue(ready_queue) + "\n";
     }
 
-      // if (curr_time >= 285 && curr_time <= 287)
-      // {
-      //   cout << current_process.id << " " <<current_process.status << " " << current_process.switch_time << " " << curr_time << endl;
-      //   //print ready queue
-      //   priority_queue<Process, vector<Process>, ReadyComparator> temp_ready_queue = ready_queue;
-      //   while (!temp_ready_queue.empty())
-      //   {
-      //     Process temp = temp_ready_queue.top();
-      //     cout << temp.id << " " << temp.arrival_time << " ";
-      //     temp_ready_queue.pop();
-      //   }
-      //   cout << endl;
-      // }
+    // if (curr_time >= 285 && curr_time <= 287)
+    // {
+    //   cout << current_process.id << " " <<current_process.status << " " << current_process.switch_time << " " << curr_time << endl;
+    //   //print ready queue
+    //   priority_queue<Process, vector<Process>, ReadyComparator> temp_ready_queue = ready_queue;
+    //   while (!temp_ready_queue.empty())
+    //   {
+    //     Process temp = temp_ready_queue.top();
+    //     cout << temp.id << " " << temp.arrival_time << " ";
+    //     temp_ready_queue.pop();
+    //   }
+    //   cout << endl;
+    // }
     // check if current process is not running
     // infinite loop here bc ts is somehow never running
     // if (curr_time >= 286 && curr_time <= 300)

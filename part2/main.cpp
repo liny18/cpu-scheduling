@@ -1,14 +1,14 @@
 #include "FCFS.h"
 #include "RR.h"
-// #include "SJF.h"
-// #include "SRT.h"
+#include "SJF.h"
+#include "SRT.h"
 #include "Process.h"
 #include <cmath>
 #include <iostream>
 
-double next_exp(double lambda, int upper_bound)
+float next_exp(float lambda, int upper_bound)
 {
-  double exp = upper_bound + 1;
+  float exp = upper_bound + 1;
   while (exp > upper_bound)
   {
     exp = -log(drand48()) / lambda;
@@ -17,7 +17,7 @@ double next_exp(double lambda, int upper_bound)
 }
 
 void generate_processes(int n, int upper_bound, int cpu_bound_begin,
-                        double lambda,
+                        float lambda,
                         std::vector<Process> &processes)
 {
   for (int i = 0; i < n; i++)
@@ -45,7 +45,7 @@ void generate_processes(int n, int upper_bound, int cpu_bound_begin,
     }
 
     processes.push_back(Process(
-        id, arrival_time, cpu_burst_count, cpu_bursts, io_bursts));
+        id, arrival_time, cpu_burst_count, cpu_bursts, io_bursts, ceil(1 / lambda)));
   }
 }
 
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
   int n = std::stoi(argv[1]);
   int n_cpu = std::stoi(argv[2]);
   int seed = std::stoi(argv[3]);
-  double lambda = std::stod(argv[4]);
+  float lambda = std::stod(argv[4]);
   int upper_bound = std::stoi(argv[5]);
   int t_cs = std::stoi(argv[6]);
   float alpha = std::stof(argv[7]);
@@ -104,7 +104,13 @@ int main(int argc, char *argv[])
   // run_fcfs(processes, t_cs);
   // cout << endl;
 
-  run_rr(processes, t_cs, t_slice);
+  // run_rr(processes, t_cs, t_slice);
+  // cout << endl;
+
+  // run_sjf(processes, t_cs, alpha, lambda);
+  // cout << endl;
+
+  run_srt(processes, t_cs, alpha, lambda);
 
   return 0;
 }
