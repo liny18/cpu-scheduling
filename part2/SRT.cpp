@@ -27,12 +27,6 @@ void run_srt(vector<Process> processes, int t_cs, float alpha, float lambda)
 
     while (true)
     {
-        // ouput everything in ready queue
-        // if (curr_time >= 35445 && curr_time <= 37929)
-        // {
-        //     priority_queue<Process, vector<Process>, ReadyComparatorSRT> temp_ready_queue = ready_queue;
-        //     // cout << "READY QUEUE SIZE " << temp_ready_queue.size() << endl;
-        //     cout << "time: " << current_process.id << " status:" << current_process.status << " " << current_process.cpu_current_burst_finish_time << " " << current_process.cpu_bursts[current_process.current_burst_index] << " " << current_process.cpu_current_burst_remaining_time_dec << endl;
         //     while (!temp_ready_queue.empty())
         //     {
         //         Process temp = temp_ready_queue.top();
@@ -128,9 +122,16 @@ void run_srt(vector<Process> processes, int t_cs, float alpha, float lambda)
                 {
                     current_process.cpu_current_burst_finish_time = curr_time + current_process.cpu_current_burst_remaining_time_dec;
                     current_process.was_preempted = false;
-                    output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " (tau " + to_string(current_process.tau) + "ms) " + "started using the CPU for remaining ";
-                    output += to_string(current_process.cpu_current_burst_remaining_time_dec) + "ms of " + to_string(current_process.cpu_bursts[current_process.current_burst_index]) + "ms burst ";
-                    output += print_queue_srt(ready_queue) + "\n";
+                    if (current_process.cpu_current_burst_remaining_time_dec == current_process.cpu_bursts[current_process.current_burst_index])
+                    {
+                        output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " (tau " + to_string(current_process.tau) + "ms) " + "started using the CPU for ";
+                        output += to_string(current_process.cpu_bursts[current_process.current_burst_index]) + "ms burst ";
+                    }
+                    else
+                    {
+                        output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " (tau " + to_string(current_process.tau) + "ms) " + "started using the CPU for remaining ";
+                        output += to_string(current_process.cpu_current_burst_remaining_time_dec) + "ms of " + to_string(current_process.cpu_bursts[current_process.current_burst_index]) + "ms burst ";
+                    }
                 }
                 else
                 {
@@ -139,8 +140,16 @@ void run_srt(vector<Process> processes, int t_cs, float alpha, float lambda)
                     current_process.cpu_current_burst_remaining_time_dec = current_process.cpu_bursts[current_process.current_burst_index];
                     output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " (tau " + to_string(current_process.tau) + "ms) " + "started using the CPU for ";
                     output += to_string(current_process.cpu_bursts[current_process.current_burst_index]) + "ms burst ";
-                    output += print_queue_srt(ready_queue) + "\n";
                 }
+                output += print_queue_srt(ready_queue) + "\n";
+            }
+            if (current_process.cpu_bursts.size() != 0 && !ready_queue.empty() && gotta_preempt(current_process, ready_queue) && current_process.status == "RUNNING")
+            {
+                output += "time " + to_string(curr_time) + "ms: Process " + ready_queue.top().id + " (tau " + to_string(ready_queue.top().tau) + "ms) will preempt " + current_process.id + " ";
+                string o = print_queue_srt(ready_queue);
+                output += o + "\n";
+                current_process.status = "PREEMPTED";
+                current_process.switch_time = curr_time + t_cs / 2;
             }
         }
 
@@ -159,7 +168,7 @@ void run_srt(vector<Process> processes, int t_cs, float alpha, float lambda)
             waiting_queue.pop();
             output += " completed I/O; ";
 
-            if (current_process.cpu_bursts.size() != 0 && gotta_preempt(current_process, ready_queue))
+            if (current_process.cpu_bursts.size() != 0 && gotta_preempt(current_process, ready_queue) && current_process.status == "RUNNING")
             {
                 current_process.status = "PREEMPTED";
                 current_process.switch_time = curr_time + t_cs / 2;
@@ -184,10 +193,10 @@ void run_srt(vector<Process> processes, int t_cs, float alpha, float lambda)
             temp.arrival_time = curr_time;
             ready_queue.push(temp);
             arrival_queue.pop();
-            output += "time " + to_string(curr_time) + "ms: Process " + temp.id + " (tau " + to_string(current_process.tau) + "ms)";
+            output += "time " + to_string(curr_time) + "ms: Process " + temp.id + " (tau " + to_string(temp.tau) + "ms)";
             output += " arrived; ";
 
-            if (current_process.cpu_bursts.size() != 0 && gotta_preempt(current_process, ready_queue))
+            if (current_process.cpu_bursts.size() != 0 && gotta_preempt(current_process, ready_queue) && current_process.status == "RUNNING")
             {
                 current_process.status = "PREEMPTED";
                 current_process.switch_time = curr_time + t_cs / 2;
@@ -218,10 +227,10 @@ void run_srt(vector<Process> processes, int t_cs, float alpha, float lambda)
             current_process.cpu_current_burst_remaining_time_dec--;
         }
 
-        // if (curr_time < 10000)
-        // {
+        if (curr_time < 10000)
+        {
             cout << output;
-        // }
+        }
 
         curr_time++;
     }

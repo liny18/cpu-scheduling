@@ -125,7 +125,7 @@ void run_sjf(vector<Process> processes, int t_cs, float alpha, float lambda)
             temp.arrival_time = curr_time;
             ready_queue.push(temp);
             arrival_queue.pop();
-            output += "time " + to_string(curr_time) + "ms: Process " + temp.id + " (tau " + to_string(current_process.tau) + "ms)";
+            output += "time " + to_string(curr_time) + "ms: Process " + temp.id + " (tau " + to_string(temp.tau) + "ms)";
             output += " arrived; added to ready queue ";
             output += print_queue_sjf(ready_queue) + "\n";
         }
@@ -140,10 +140,10 @@ void run_sjf(vector<Process> processes, int t_cs, float alpha, float lambda)
             current_process = temp;
         }
 
-        // if (curr_time < 10000)
-        // {
+        if (curr_time < 10000)
+        {
             cout << output;
-        // }
+        }
 
         curr_time++;
     }
