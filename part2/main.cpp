@@ -104,13 +104,13 @@ int main(int argc, char *argv[])
   run_fcfs(processes, t_cs);
   cout << endl;
 
-  run_rr(processes, t_cs, t_slice);
-  cout << endl;
-
   run_sjf(processes, t_cs, alpha, lambda);
   cout << endl;
 
   run_srt(processes, t_cs, alpha, lambda);
+  cout << endl;
+
+  run_rr(processes, t_cs, t_slice);
 
   return 0;
 }
