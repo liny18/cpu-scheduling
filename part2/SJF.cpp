@@ -142,7 +142,7 @@ void run_sjf(vector<Process> processes, int t_cs, float alpha, float lambda)
 
         // if (curr_time < 10000)
         // {
-        cout << output;
+            cout << output;
         // }
 
         curr_time++;
