@@ -101,14 +101,14 @@ int main(int argc, char *argv[])
   std::cout << "<<< PROJECT PART II -- t_cs=" << t_cs << "ms; alpha=" << alpha << "; t_slice=" << t_slice << "ms >>>" << std::endl;
 
   // PART 2 START
-  // run_fcfs(processes, t_cs);
-  // cout << endl;
+  run_fcfs(processes, t_cs);
+  cout << endl;
 
-  // run_rr(processes, t_cs, t_slice);
-  // cout << endl;
+  run_rr(processes, t_cs, t_slice);
+  cout << endl;
 
-  // run_sjf(processes, t_cs, alpha, lambda);
-  // cout << endl;
+  run_sjf(processes, t_cs, alpha, lambda);
+  cout << endl;
 
   run_srt(processes, t_cs, alpha, lambda);
 
