@@ -9,7 +9,6 @@ void run_fcfs(vector<Process> processes, int t_cs, StatisticsHelper &stats)
     for (auto p : processes)
         arrival_queue.push(p);
 
-    // deque<Process> ready_queue;
     priority_queue<Process, vector<Process>, ReadyComparator> ready_queue;
     priority_queue<Process, vector<Process>, WaitingComparator> waiting_queue;
 
@@ -20,17 +19,12 @@ void run_fcfs(vector<Process> processes, int t_cs, StatisticsHelper &stats)
 
     while (true)
     {
-        // cout << "time " << curr_time << " " << arrival_queue.size() << " " << ready_queue.size() << " " << waiting_queue.size() << endl;
-        // terminate when to complete
-        //(a) CPU burst completion; (b) process starts using the CPU; (c) I/O burst completions; and (d) new process arrivals
         string output = "";
         if (arrival_queue.empty() && ready_queue.empty() && waiting_queue.empty() && current_process.status == "TERMINATED")
         {
             cout << "time " << curr_time + t_cs / 2 - 1 << "ms: Simulator ended for FCFS [Q <empty>]" << endl;
             break;
         }
-
-        // if(current_process.status == "RUNNING") stats.cpu_used_time++; 
 
         // CPU BURST COMPLETION:
         if (current_process.status == "RUNNING" && curr_time >= current_process.cpu_current_burst_finish_time)
@@ -47,13 +41,11 @@ void run_fcfs(vector<Process> processes, int t_cs, StatisticsHelper &stats)
 
             if (current_process.current_burst_index == current_process.cpu_burst_count - 1)
             {
-                // output += "time " + to_string(curr_time) + "ms: PROCESS " + current_process.id + " terminated\n";
                 current_process.status = "TERMINATED";
                 cout << "time " << curr_time << "ms: Process " << current_process.id << " terminated ";
                 string o = print_queue(ready_queue);
                 cout << o << endl;
                 current_process.switch_time = curr_time + t_cs / 2;
-
             }
             else
             {
@@ -73,7 +65,6 @@ void run_fcfs(vector<Process> processes, int t_cs, StatisticsHelper &stats)
                 output += b + " to go ";
                 output += print_queue(ready_queue) + "\n";
                 output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " switching out of CPU; blocking on I/O until time ";
-                // might have issue, not sure why io_current_burst_finish_time won't work here
                 output += to_string(current_process.switch_time + current_process.io_bursts[current_process.current_burst_index]) + "ms ";
                 output += print_queue(ready_queue) + "\n";
             }
@@ -114,7 +105,6 @@ void run_fcfs(vector<Process> processes, int t_cs, StatisticsHelper &stats)
             temp.status = "READY";
             temp.arrival_time = curr_time;
             temp.current_burst_index = temp.current_burst_index + 1;
-            // temp.cpu_current_burst_finish_time = curr_time + temp.cpu_bursts[temp.current_burst_index];
             ready_queue.push(temp);
             stats.entry_times[temp.id] = curr_time; 
             waiting_queue.pop();
@@ -127,7 +117,6 @@ void run_fcfs(vector<Process> processes, int t_cs, StatisticsHelper &stats)
         {
             Process temp = arrival_queue.top();
             temp.status = "READY";
-            // temp.cpu_current_burst_finish_time = curr_time + temp.cpu_bursts[temp.current_burst_index];
             temp.arrival_time = curr_time;
             ready_queue.push(temp);
             stats.entry_times[temp.id] = curr_time; 
@@ -136,7 +125,6 @@ void run_fcfs(vector<Process> processes, int t_cs, StatisticsHelper &stats)
             output += print_queue(ready_queue) + "\n";
         }
 
-        // check if current process is not running
         if (!ready_queue.empty() && (current_process.status == "WAITING" || (current_process.status == "TERMINATED" && curr_time >= current_process.switch_time) || (current_process.status == "SWITCH_OUT" && curr_time >= current_process.switch_time)))
         {
             Process temp = ready_queue.top();

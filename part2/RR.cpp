@@ -24,20 +24,6 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice, StatisticsHelper &
 
   while (true)
   {
-    // ouput everything in ready queue
-    //  if (curr_time >= 287 && curr_time <= 300) {
-    //    priority_queue<Process, vector<Process>, ReadyComparator> temp_ready_queue = ready_queue;
-    //    while (!temp_ready_queue.empty())
-    //    {
-    //      Process temp = temp_ready_queue.top();
-    //      cout << temp.id << " " << temp.arrival_time << " " << temp.cpu_burst_count << " ";
-    //      temp_ready_queue.pop();
-    //    }
-    //    cout << endl;
-    //  }
-    //  cout << "time " << curr_time << " " << arrival_queue.size() << " " << ready_queue.size() << " " << waiting_queue.size() << endl;
-    //  terminate when to complete
-    //(a) CPU burst completion; (b) process starts using the CPU; (c) I/O burst completions; and (d) new process arrivals
     string output = "";
     if (arrival_queue.empty() && ready_queue.empty() && waiting_queue.empty() && current_process.status == "TERMINATED")
     {
@@ -59,12 +45,10 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice, StatisticsHelper &
       }
       if (current_process.current_burst_index == current_process.cpu_burst_count - 1)
       {
-        // output += "time " + to_string(curr_time) + "ms: PROCESS " + current_process.id + " terminated\n";
         current_process.status = "TERMINATED";
         cout << "time " << curr_time << "ms: Process " << current_process.id << " terminated ";
         string o = print_queue(ready_queue);
         cout << o << endl;
-        // NEED TO FIGURE OUT HOW TO ACTUAL TERMINATE
         current_process.switch_time = curr_time + t_cs / 2;
       }
       else
@@ -85,14 +69,12 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice, StatisticsHelper &
         output += b + " to go ";
         output += print_queue(ready_queue) + "\n";
         output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " switching out of CPU; blocking on I/O until time ";
-        // might have issue, not sure why io_current_burst_finish_time won't work here
         output += to_string(current_process.switch_time + current_process.io_bursts[current_process.current_burst_index]) + "ms ";
         output += print_queue(ready_queue) + "\n";
       }
     }
     else if (current_process.status == "RUNNING" && gotta_preempt(current_process, t_slice))
     {
-      // cout << "tf going on" << endl;
       output += "time " + to_string(curr_time) + "ms: Time slice expired;";
       if (!ready_queue.empty())
       {
@@ -141,7 +123,6 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice, StatisticsHelper &
     // PROCESS STARTS USING CPU
     if (current_process.status == "SWITCH_IN")
     {
-      // cout << current_process.id << " " << current_process.switch_time << " " << curr_time << endl;
       if (curr_time >= current_process.switch_time)
       {
         stats.context_switches++;
@@ -150,7 +131,6 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice, StatisticsHelper &
 
         stats.update_wait_time(current_process.id, curr_time - t_cs / 2, current_process.cpu_bound);
         current_process.status = "RUNNING";
-        // issue here, if process was preempted, it needs to end at the remaining time
         if (current_process.was_preempted)
         {
           current_process.cpu_current_burst_finish_time = curr_time + current_process.cpu_current_burst_remaining_time;
@@ -187,15 +167,10 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice, StatisticsHelper &
     }
 
     // NEW PROCESS ARRIVALS
-    // if (curr_time <= 286)
-    // {
-    //   cout << current_process.id << " " <<current_process.status << " " << current_process.switch_time << " " << curr_time << endl;
-    // }
     while (!arrival_queue.empty() && arrival_queue.top().arrival_time <= curr_time)
     {
       Process temp = arrival_queue.top();
       temp.status = "READY";
-      // temp.cpu_current_burst_finish_time = curr_time + temp.cpu_bursts[temp.current_burst_index];
       temp.arrival_time = curr_time;
       temp.priority = 10;
       ready_queue.push(temp);
@@ -205,28 +180,8 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice, StatisticsHelper &
       output += print_queue(ready_queue) + "\n";
     }
 
-    // if (curr_time >= 285 && curr_time <= 287)
-    // {
-    //   cout << current_process.id << " " <<current_process.status << " " << current_process.switch_time << " " << curr_time << endl;
-    //   //print ready queue
-    //   priority_queue<Process, vector<Process>, ReadyComparator> temp_ready_queue = ready_queue;
-    //   while (!temp_ready_queue.empty())
-    //   {
-    //     Process temp = temp_ready_queue.top();
-    //     cout << temp.id << " " << temp.arrival_time << " ";
-    //     temp_ready_queue.pop();
-    //   }
-    //   cout << endl;
-    // }
-    // check if current process is not running
-    // infinite loop here bc ts is somehow never running
-    // if (curr_time >= 286 && curr_time <= 300)
-    // {
-    //   cout << current_process.id << " " <<current_process.status << " " << current_process.switch_time << " " << curr_time << endl;
-    // }
     if (!ready_queue.empty() && ((current_process.status == "WAITING" || (current_process.status == "TERMINATED" && curr_time >= current_process.switch_time) || (current_process.status == "SWITCH_OUT" && curr_time >= current_process.switch_time) || (current_process.status == "PREEMPTED" && curr_time >= current_process.switch_time)) || (current_process.status == "READY" && current_process.was_preempted)))
     {
-      // cout << current_process.id << " " << current_process.switch_time << " " << curr_time << endl;
       Process temp = ready_queue.top();
       temp.status = "SWITCH_IN";
       temp.switch_time = curr_time + t_cs / 2;
@@ -237,7 +192,6 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice, StatisticsHelper &
     if (current_process.status == "RUNNING")
     {
       current_process.cpu_current_burst_remaining_time--;
-      // stats.cpu_used_time++; 
     }
 
     if (curr_time < 10000)

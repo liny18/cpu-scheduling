@@ -65,8 +65,6 @@ struct ReadyComparatorSRT
 {
   bool operator()(const Process &p1, const Process &p2) const
   {
-    // cout << "p1.id: " << p1.id << " p1.tau: " << p1.tau << " p1.curr: " << p1.cpu_bursts[p1.current_burst_index] << " p1.remain " << p1.cpu_current_burst_remaining_time_dec << endl;
-    // cout << "p2.id: " << p2.id << " p2.tau: " << p2.tau << " p2.curr: " << p2.cpu_bursts[p2.current_burst_index] << " p2.remain " << p2.cpu_current_burst_remaining_time_dec << endl;
     if (p1.tau - (p1.cpu_bursts[p1.current_burst_index] - p1.cpu_current_burst_remaining_time_dec) == p2.tau - (p2.cpu_bursts[p2.current_burst_index] - p2.cpu_current_burst_remaining_time_dec))
     {
       return p1.id > p2.id;
@@ -84,25 +82,6 @@ struct StatisticsHelper {
   int io_bound_bursts = 0; 
   int cpu_bound_burst_time = 0; 
   int io_bound_burst_time = 0;
-  
-  unordered_map<char, int> entry_times;
-  int total_wait_time = 0;
-  int cpu_bound_wait_time = 0;
-  int io_bound_wait_time = 0;
-  void update_wait_time(char processId, int currentTime, bool isCpuBound) {
-    if (entry_times.find(processId) != entry_times.end()) {
-      int wait_time = currentTime - entry_times[processId];
-      total_wait_time += wait_time;
-
-      if (isCpuBound) {
-        cpu_bound_wait_time += wait_time;
-      } else {
-        io_bound_wait_time += wait_time;
-      }
-
-      entry_times.erase(processId);
-    }
-  }
 
   int context_switches = 0; 
   int cpu_context_switches = 0; 
@@ -112,6 +91,20 @@ struct StatisticsHelper {
   int cpu_num_preemptions = 0;
   int io_num_preemptions = 0;
 
+  int total_wait_time = 0;
+  int cpu_bound_wait_time = 0;
+  int io_bound_wait_time = 0;
+  unordered_map<char, int> entry_times;
+
+  void update_wait_time(char p_id, int curr_time, bool cpu_bound) {
+    if (entry_times.find(p_id) != entry_times.end()) {
+      int wait_time = curr_time - entry_times[p_id];
+      total_wait_time += wait_time;
+      if(cpu_bound) cpu_bound_wait_time += wait_time;
+      else io_bound_wait_time += wait_time;
+      entry_times.erase(p_id);
+    }
+  }
 };
 
 
