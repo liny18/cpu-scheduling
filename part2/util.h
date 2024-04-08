@@ -5,6 +5,7 @@
 #include <queue>
 #include <vector>
 #include <iostream>
+#include <unordered_map>
 
 using namespace std;
 
@@ -77,7 +78,43 @@ struct ReadyComparatorSRT
 struct StatisticsHelper {
   int total_time = 0; 
   int cpu_used_time = 0; 
+  int total_cpu_burst_time = 0;
+  int total_cpu_bursts = 0; 
+  int cpu_bound_bursts = 0; 
+  int io_bound_bursts = 0; 
+  int cpu_bound_burst_time = 0; 
+  int io_bound_burst_time = 0;
+  
+  unordered_map<char, int> entry_times;
+  int total_wait_time = 0;
+  int cpu_bound_wait_time = 0;
+  int io_bound_wait_time = 0;
+  void update_wait_time(char processId, int currentTime, bool isCpuBound) {
+    if (entry_times.find(processId) != entry_times.end()) {
+      int wait_time = currentTime - entry_times[processId];
+      total_wait_time += wait_time;
+
+      if (isCpuBound) {
+        cpu_bound_wait_time += wait_time;
+      } else {
+        io_bound_wait_time += wait_time;
+      }
+
+      entry_times.erase(processId);
+    }
+  }
+
+  int context_switches = 0; 
+  int cpu_context_switches = 0; 
+  int io_context_switches = 0; 
+
+  int num_preemptions = 0;
+  int cpu_num_preemptions = 0;
+  int io_num_preemptions = 0;
+
 };
+
+
 
 string print_queue(const priority_queue<Process, vector<Process>, ReadyComparator> &queue);
 string print_queue_sjf(const priority_queue<Process, vector<Process>, ReadyComparatorSJF> &queue);

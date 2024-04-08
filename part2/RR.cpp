@@ -48,6 +48,15 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice, StatisticsHelper &
     // CPU BURST COMPLETION:
     if (current_process.status == "RUNNING" && curr_time >= current_process.cpu_current_burst_finish_time)
     {
+      stats.total_cpu_burst_time += current_process.cpu_bursts[current_process.current_burst_index];
+      stats.total_cpu_bursts++;
+      if (current_process.cpu_bound) {
+        stats.cpu_bound_burst_time += current_process.cpu_bursts[current_process.current_burst_index];
+        stats.cpu_bound_bursts++;
+      } else {
+        stats.io_bound_burst_time += current_process.cpu_bursts[current_process.current_burst_index];
+        stats.io_bound_bursts++;
+      }
       if (current_process.current_burst_index == current_process.cpu_burst_count - 1)
       {
         // output += "time " + to_string(curr_time) + "ms: PROCESS " + current_process.id + " terminated\n";
@@ -87,6 +96,10 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice, StatisticsHelper &
       output += "time " + to_string(curr_time) + "ms: Time slice expired;";
       if (!ready_queue.empty())
       {
+        stats.num_preemptions++;
+        if(current_process.cpu_bound) stats.cpu_num_preemptions++;
+        else stats.io_num_preemptions++; 
+        
         current_process.status = "PREEMPTED";
         current_process.switch_time = curr_time + t_cs / 2;
         output += " preempting process ";
@@ -121,6 +134,7 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice, StatisticsHelper &
         current_process.was_preempted = true;
         current_process.priority = 100;
         ready_queue.push(current_process);
+        stats.entry_times[current_process.id] = curr_time; 
       }
     }
 
@@ -130,6 +144,11 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice, StatisticsHelper &
       // cout << current_process.id << " " << current_process.switch_time << " " << curr_time << endl;
       if (curr_time >= current_process.switch_time)
       {
+        stats.context_switches++;
+        if(current_process.cpu_bound) stats.cpu_context_switches++;
+        else stats.io_context_switches++;
+
+        stats.update_wait_time(current_process.id, curr_time - t_cs / 2, current_process.cpu_bound);
         current_process.status = "RUNNING";
         // issue here, if process was preempted, it needs to end at the remaining time
         if (current_process.was_preempted)
@@ -161,6 +180,7 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice, StatisticsHelper &
       temp.cpu_current_burst_remaining_time = temp.cpu_bursts[temp.current_burst_index];
       // temp.cpu_current_burst_finish_time = curr_time + temp.cpu_bursts[temp.current_burst_index];
       ready_queue.push(temp);
+      stats.entry_times[temp.id] = curr_time; 
       waiting_queue.pop();
       output += "time " + to_string(curr_time) + "ms: Process " + temp.id + " completed I/O; added to ready queue ";
       output += print_queue(ready_queue) + "\n";
@@ -179,6 +199,7 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice, StatisticsHelper &
       temp.arrival_time = curr_time;
       temp.priority = 10;
       ready_queue.push(temp);
+      stats.entry_times[temp.id] = curr_time; 
       arrival_queue.pop();
       output += "time " + to_string(curr_time) + "ms: Process " + temp.id + " arrived; added to ready queue ";
       output += print_queue(ready_queue) + "\n";
@@ -216,7 +237,7 @@ void run_rr(vector<Process> processes, int t_cs, int t_slice, StatisticsHelper &
     if (current_process.status == "RUNNING")
     {
       current_process.cpu_current_burst_remaining_time--;
-      stats.cpu_used_time++; 
+      // stats.cpu_used_time++; 
     }
 
     if (curr_time < 10000)

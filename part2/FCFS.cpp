@@ -30,11 +30,21 @@ void run_fcfs(vector<Process> processes, int t_cs, StatisticsHelper &stats)
             break;
         }
 
-        if(current_process.status == "RUNNING") stats.cpu_used_time++; 
+        // if(current_process.status == "RUNNING") stats.cpu_used_time++; 
 
         // CPU BURST COMPLETION:
         if (current_process.status == "RUNNING" && curr_time >= current_process.cpu_current_burst_finish_time)
         {
+            stats.total_cpu_burst_time += current_process.cpu_bursts[current_process.current_burst_index];
+            stats.total_cpu_bursts++;
+            if (current_process.cpu_bound) {
+                stats.cpu_bound_burst_time += current_process.cpu_bursts[current_process.current_burst_index];
+                stats.cpu_bound_bursts++;
+            } else {
+                stats.io_bound_burst_time += current_process.cpu_bursts[current_process.current_burst_index];
+                stats.io_bound_bursts++;
+            }
+
             if (current_process.current_burst_index == current_process.cpu_burst_count - 1)
             {
                 // output += "time " + to_string(curr_time) + "ms: PROCESS " + current_process.id + " terminated\n";
@@ -43,6 +53,7 @@ void run_fcfs(vector<Process> processes, int t_cs, StatisticsHelper &stats)
                 string o = print_queue(ready_queue);
                 cout << o << endl;
                 current_process.switch_time = curr_time + t_cs / 2;
+
             }
             else
             {
@@ -83,6 +94,11 @@ void run_fcfs(vector<Process> processes, int t_cs, StatisticsHelper &stats)
         {
             if (curr_time >= current_process.switch_time)
             {
+                stats.context_switches++;
+                if(current_process.cpu_bound) stats.cpu_context_switches++;
+                else stats.io_context_switches++;
+                
+                stats.update_wait_time(current_process.id, curr_time - t_cs / 2, current_process.cpu_bound);
                 current_process.status = "RUNNING";
                 current_process.cpu_current_burst_finish_time = curr_time + current_process.cpu_bursts[current_process.current_burst_index];
                 output += "time " + to_string(curr_time) + "ms: Process " + current_process.id + " started using the CPU for ";
@@ -100,6 +116,7 @@ void run_fcfs(vector<Process> processes, int t_cs, StatisticsHelper &stats)
             temp.current_burst_index = temp.current_burst_index + 1;
             // temp.cpu_current_burst_finish_time = curr_time + temp.cpu_bursts[temp.current_burst_index];
             ready_queue.push(temp);
+            stats.entry_times[temp.id] = curr_time; 
             waiting_queue.pop();
             output += "time " + to_string(curr_time) + "ms: Process " + temp.id + " completed I/O; added to ready queue ";
             output += print_queue(ready_queue) + "\n";
@@ -113,6 +130,7 @@ void run_fcfs(vector<Process> processes, int t_cs, StatisticsHelper &stats)
             // temp.cpu_current_burst_finish_time = curr_time + temp.cpu_bursts[temp.current_burst_index];
             temp.arrival_time = curr_time;
             ready_queue.push(temp);
+            stats.entry_times[temp.id] = curr_time; 
             arrival_queue.pop();
             output += "time " + to_string(curr_time) + "ms: Process " + temp.id + " arrived; added to ready queue ";
             output += print_queue(ready_queue) + "\n";

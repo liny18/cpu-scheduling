@@ -52,19 +52,21 @@ void generate_processes(int n, int upper_bound, int cpu_bound_begin,
   }
 }
 
-void print_processes(const std::vector<Process> &processes,
+void print_processes(std::vector<Process> &processes,
                      int cpu_bound_begin)
 {
   int count = 0;
-  for (const auto &process : processes)
+  for (auto &process : processes)
   {
     if (count < cpu_bound_begin)
     {
       std::cout << "I/O-bound process ";
+      process.cpu_bound = false;
     }
     else
     {
       std::cout << "CPU-bound process ";
+      process.cpu_bound = true; 
     }
     std::cout << process.id << ": arrival time " << process.arrival_time << "ms; " << process.cpu_burst_count << " CPU bursts" << std::endl;
     count++;
@@ -120,10 +122,62 @@ int main(int argc, char *argv[])
   cout << endl;
 
   run_rr(processes, t_cs, t_slice, rr_stats);
-  cout << fixed << setprecision(3) << (float) fcfs_stats.cpu_used_time / fcfs_stats.total_time * 100 << endl;
-  cout << fixed << setprecision(3) << (float) sjf_stats.cpu_used_time / sjf_stats.total_time * 100 << endl;
-  cout << fixed << setprecision(3) << (float) srt_stats.cpu_used_time / srt_stats.total_time * 100 << endl;
-  cout << fixed << setprecision(3) << (float) rr_stats.cpu_used_time / rr_stats.total_time * 100 << endl;
 
+  double num = ((double) fcfs_stats.total_cpu_burst_time / (double) fcfs_stats.total_time);
+  double avg = ceil(num * 1000.0) / 1000.0;
+  cout << fixed << setprecision(10) <<  avg << endl;
+  // float avgBurstTime = ceil((totalBurstTime * 1000.0) / totalBursts) / 1000.0;
+
+  // cout << "CPU UTILIZATION" << endl;
+  // cout << fixed << setprecision(3) << (double) ((double) fcfs_stats.total_cpu_burst_time / (double) fcfs_stats.total_time) * 100.0 << endl;
+  // cout << fixed << setprecision(3) << (double) ((double) sjf_stats.total_cpu_burst_time / (double) sjf_stats.total_time) * 100.0 << endl;
+  // cout << fixed << setprecision(3) << (double) ((double) srt_stats.total_cpu_burst_time / (double) srt_stats.total_time) * 100.0 << endl;
+  // cout << fixed << setprecision(3) << (double) ((double) rr_stats.total_cpu_burst_time / (double) rr_stats.total_time) * 100.0 << endl;
+
+  // cout << "CPU BURST TIME VALUES" << endl;
+  // cout << fixed << setprecision(3) << ((double) fcfs_stats.total_cpu_burst_time / (double) fcfs_stats.total_cpu_bursts) << endl;
+  // cout << fixed << setprecision(3) << (double) sjf_stats.total_cpu_burst_time / (double) sjf_stats.total_cpu_bursts << endl;
+  // cout << fixed << setprecision(3) << (double) srt_stats.total_cpu_burst_time / (double) srt_stats.total_cpu_bursts << endl;
+  // cout << fixed << setprecision(3) << (double) rr_stats.total_cpu_burst_time / (double) rr_stats.total_cpu_bursts << endl;
+
+  // cout << fixed << setprecision(3) << ((double) fcfs_stats.cpu_bound_burst_time / (double) fcfs_stats.cpu_bound_bursts) << endl;
+  // cout << fixed << setprecision(3) << ((double) sjf_stats.cpu_bound_burst_time / (double) sjf_stats.cpu_bound_bursts) << endl;
+  // cout << fixed << setprecision(3) << ((double) srt_stats.cpu_bound_burst_time / (double) srt_stats.cpu_bound_bursts) << endl;
+  // cout << fixed << setprecision(3) << ((double) rr_stats.cpu_bound_burst_time / (double) rr_stats.cpu_bound_bursts) << endl;
+
+  // cout << fixed << setprecision(3) << ((double) fcfs_stats.io_bound_burst_time / (double) fcfs_stats.io_bound_bursts) << endl;
+  // cout << fixed << setprecision(3) << ((double) sjf_stats.io_bound_burst_time / (double) sjf_stats.io_bound_bursts) << endl;
+  // cout << fixed << setprecision(3) << ((double) srt_stats.io_bound_burst_time / (double) srt_stats.io_bound_bursts) << endl;
+  // cout << fixed << setprecision(3) << ((double) rr_stats.io_bound_burst_time / (double) rr_stats.io_bound_bursts) << endl;
+
+  // cout << "WAIT TIME VALUES" << endl;
+  // cout << fixed << setprecision(3) << ((double) fcfs_stats.total_wait_time / (double) fcfs_stats.total_cpu_bursts) << endl;
+  // cout << fixed << setprecision(3) << ((double) sjf_stats.total_wait_time / (double) sjf_stats.total_cpu_bursts) << endl;
+  // cout << fixed << setprecision(3) << ((double) srt_stats.total_wait_time / (double) srt_stats.total_cpu_bursts) << endl;
+  // cout << fixed << setprecision(3) << ((double) rr_stats.total_wait_time / (double) rr_stats.total_cpu_bursts) << endl;
+
+  // cout << fixed << setprecision(3) << ((double) fcfs_stats.cpu_bound_wait_time / (double) fcfs_stats.cpu_bound_bursts) << endl;
+  // cout << fixed << setprecision(3) << ((double) sjf_stats.cpu_bound_wait_time / (double) sjf_stats.cpu_bound_bursts) << endl;
+  // cout << fixed << setprecision(3) << ((double) srt_stats.cpu_bound_wait_time / (double) srt_stats.cpu_bound_bursts) << endl;
+  // cout << fixed << setprecision(3) << ((double) rr_stats.cpu_bound_wait_time / (double) rr_stats.cpu_bound_bursts) << endl;
+
+  // cout << fixed << setprecision(3) << ((double) fcfs_stats.io_bound_wait_time / (double) fcfs_stats.io_bound_bursts) << endl;
+  // cout << fixed << setprecision(3) << ((double) sjf_stats.io_bound_wait_time / (double) sjf_stats.io_bound_bursts) << endl;
+  // cout << fixed << setprecision(3) << ((double) srt_stats.io_bound_wait_time / (double) srt_stats.io_bound_bursts) << endl;
+  // cout << fixed << setprecision(3) << ((double) rr_stats.io_bound_wait_time / (double) rr_stats.io_bound_bursts) << endl;
+
+  // cout << "TURNAROUND TIME STATS" << endl;
+
+  // cout << "CONTEXT SWITCH TRACKER" << endl;
+  // cout << fcfs_stats.context_switches << " " << fcfs_stats.cpu_context_switches <<   " " << fcfs_stats.io_context_switches<< endl;
+  // cout << sjf_stats.context_switches << " " << sjf_stats.cpu_context_switches <<   " " << sjf_stats.io_context_switches<< endl;
+  // cout << srt_stats.context_switches << " " << srt_stats.cpu_context_switches <<   " " << srt_stats.io_context_switches<< endl;
+  // cout << rr_stats.context_switches << " " << rr_stats.cpu_context_switches <<   " " << rr_stats.io_context_switches<< endl;
+
+  // cout << "PREEMPTION TRACKER" << endl;
+  // cout << fcfs_stats.num_preemptions << " " << fcfs_stats.cpu_num_preemptions <<   " " << fcfs_stats.io_num_preemptions<< endl;
+  // cout << sjf_stats.num_preemptions << " " << sjf_stats.cpu_num_preemptions <<   " " << sjf_stats.io_num_preemptions<< endl;
+  // cout << srt_stats.num_preemptions << " " << srt_stats.cpu_num_preemptions <<   " " << srt_stats.io_num_preemptions<< endl;
+  // cout << rr_stats.num_preemptions << " " << rr_stats.cpu_num_preemptions <<   " " << rr_stats.io_num_preemptions<< endl;
   return 0;
 }

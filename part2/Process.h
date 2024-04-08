@@ -23,6 +23,7 @@ public:
     int priority = 0;
     bool was_preempted = false;
     int tau;
+    bool cpu_bound; 
     std::string status;
     Process(char id, int arrival_time, int cpu_burst_count, std::vector<int> cpu_bursts, std::vector<int> io_bursts, int tau);
     Process();

@@ -29,11 +29,20 @@ void run_sjf(vector<Process> processes, int t_cs, float alpha, float lambda, Sta
             break;
         }
 
-        if(current_process.status == "RUNNING") stats.cpu_used_time++;
+        // if(current_process.status == "RUNNING") stats.cpu_used_time++;
 
         // CPU BURST COMPLETION:
         if (current_process.status == "RUNNING" && curr_time >= current_process.cpu_current_burst_finish_time)
         {
+            stats.total_cpu_burst_time += current_process.cpu_bursts[current_process.current_burst_index];
+            stats.total_cpu_bursts++;
+            if (current_process.cpu_bound) {
+                stats.cpu_bound_burst_time += current_process.cpu_bursts[current_process.current_burst_index];
+                stats.cpu_bound_bursts++;
+            } else {
+                stats.io_bound_burst_time += current_process.cpu_bursts[current_process.current_burst_index];
+                stats.io_bound_bursts++;
+            }
             if (current_process.current_burst_index == current_process.cpu_burst_count - 1)
             {
                 // output += "time " + to_string(curr_time) + "ms: PROCESS " + current_process.id + " terminated\n";
@@ -94,6 +103,11 @@ void run_sjf(vector<Process> processes, int t_cs, float alpha, float lambda, Sta
         {
             if (curr_time >= current_process.switch_time)
             {
+                stats.context_switches++;
+                if(current_process.cpu_bound) stats.cpu_context_switches++;
+                else stats.io_context_switches++;
+                
+                stats.update_wait_time(current_process.id, curr_time - t_cs / 2, current_process.cpu_bound);
                 current_process.status = "RUNNING";
                 current_process.cpu_current_burst_finish_time = curr_time + current_process.cpu_bursts[current_process.current_burst_index];
                 current_process.cpu_current_burst_remaining_time = current_process.cpu_bursts[current_process.current_burst_index];
@@ -112,6 +126,7 @@ void run_sjf(vector<Process> processes, int t_cs, float alpha, float lambda, Sta
             temp.current_burst_index = temp.current_burst_index + 1;
             // temp.cpu_current_burst_finish_time = curr_time + temp.cpu_bursts[temp.current_burst_index];
             ready_queue.push(temp);
+            stats.entry_times[temp.id] = curr_time; 
             output += "time " + to_string(curr_time) + "ms: Process " + temp.id + " (tau " + to_string(waiting_queue.top().tau) + "ms)";
             waiting_queue.pop();
             output += " completed I/O; added to ready queue ";
@@ -126,6 +141,7 @@ void run_sjf(vector<Process> processes, int t_cs, float alpha, float lambda, Sta
             // temp.cpu_current_burst_finish_time = curr_time + temp.cpu_bursts[temp.current_burst_index];
             temp.arrival_time = curr_time;
             ready_queue.push(temp);
+            stats.entry_times[temp.id] = curr_time; 
             arrival_queue.pop();
             output += "time " + to_string(curr_time) + "ms: Process " + temp.id + " (tau " + to_string(temp.tau) + "ms)";
             output += " arrived; added to ready queue ";
